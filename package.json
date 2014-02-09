@@ -1,0 +1,21 @@
+{
+  "name": "git-html5-testapp",
+  "version": "0.0.0",
+  "description": "git-html5-testapp",
+  "main": "index.js",
+  "scripts": {
+    "test": "tests.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "author": "Maksim Lin <maks@manichord.com>",
+  "license": "BSD-2-Clause",
+  "bugs": {
+    "url": ""
+  },
+  "homepage": "",
+  "dependencies": {
+  }
+}
