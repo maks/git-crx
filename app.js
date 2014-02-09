@@ -1,30 +1,26 @@
-/*global require, chrome */
+/*global require, requirejs, chrome */
 /*jshint strict:true, globalstrict:true, browser: true, devel: true */
 "use strict";
 
 requirejs.config({
-    //By default load any module IDs from git-html5 subdir
-    baseUrl: 'git-html5',
-    //except, if the module ID starts with "app",
-    //load it from the js/app directory. paths
-    //config is relative to the baseUrl, and
-    //never includes a ".js" extension since
-    //the paths config could be for a directory.
-//     paths: {
-//         app : "../app"
-//     }
+     paths: {
+         'objectstore' : "git-html5/objectstore",
+         'commands' : "git-html5/commands",
+         'formats' : "git-html5/formats",
+         'utils' : "git-html5/utils",
+         'thirdparty' : "git-html5/thirdparty",
+         'npm' : "node_modules",
+     }
 });
 
 
 var dirEntryId;
 var FS;
 var outDir;
-window.onload = init;
 
-function init() {
-    console.log("init");
-    window.document.getElementById("getdirbutton").onclick = function() { getFS(); };
-}
+console.log("init");
+window.document.getElementById("getdirbutton").onclick = function() { getFS(); };
+
 
 function getFS() {
   chrome.fileSystem.chooseEntry({ type : "openDirectory" }, function(entry) {
@@ -72,9 +68,9 @@ function testPackRead() {
           console.log("commit parent1 :", commit.parents[0]); 
           console.log("commit tree sha:", commit.tree);
           
-          store._getTreesFromCommits([headSha, commit.parents[0]], function(trees) {
+          store._getTreesFromCommits([commit.parents[0], headSha], function(trees) {
             console.log("got commit treeA, treeB",trees[0], trees[1]);
-            showDiff(trees[0], trees[1]);
+            showDiff(trees[0], trees[1], store);
           }); 
         });  
       });      
@@ -84,10 +80,30 @@ function testPackRead() {
 
 /**
  * Show a Diff for the given 2 trees, recursing down through all subtrees
+ * TODO: the recursing bit !!!
  */
-function showDiff(treeA, treeB) {
-  require(['commands/diff'], function (diff) {            
-    var result = diff.diffTrees(treeA, treeB);
-    console.log("DIFF:", result);
+function showDiff(treeA, treeB, store) {
+  require(['git-html5/commands/diff', 'npm/diff/diff', 'utils/misc_utils'], function (gitdiff, _na_, utils) { //JsDiff is a global, no AMD module
+    var result = gitdiff.diffTrees(treeA, treeB);
+    console.log("Diff Result:", result);
+    for (var i=0; i < result.modified.length; i++) {
+      console.log("modified:", result.modified[i]);
+      if (result.modified[i][0].isBlob) {
+        var shaA = result.modified[i][0].sha;
+        var shaB = result.modified[i][1].sha;
+        var name = result.modified[i][0].name;
+        var gitDiffPrefix = utils.convertBytesToSha(shaA).substr(0, 7)+".."+utils.convertBytesToSha(shaB).substr(0, 7);
+        store._retrieveBlobsAsStrings([shaA, shaB], function(objList){
+          //console.log("objList:", objList);
+          if (objList.length == 2) {
+            console.log(JsDiff.createPatch(name, objList[0].data, objList[1].data));  
+          } else {
+            console.error("Did not find both Blob objects for SHA's:", objList);
+          }
+        });
+      } else {
+        console.log("modified is tree: ", result.modified[i]);
+      }
+    }
   });
 }
