@@ -17,5 +17,6 @@
   },
   "homepage": "",
   "dependencies": {
+    "diff": "~1.0.8"
   }
 }
