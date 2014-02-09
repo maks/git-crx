@@ -1,0 +1,3 @@
+[submodule "git-html5"]
+	path = git-html5
+	url = git@github.com:maks/git-html5.js.git
