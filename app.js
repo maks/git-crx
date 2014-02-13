@@ -13,13 +13,12 @@ requirejs.config({
      }
 });
 
-
 var dirEntryId;
 var FS;
 var outDir;
 
 console.log("init");
-window.document.getElementById("getdirbutton").onclick = function() { getFS(); };
+window.document.querySelector("#getdirbutton").onclick = function() { getFS(); };
 
 
 function getFS() {
@@ -33,19 +32,6 @@ function getFS() {
   });
 }
 
-function writeToFile(fileEntry, content) {
-    console.log("writing to file", fileEntry);   
-    fileEntry.createWriter(function(fileWriter) {
-
-        fileWriter.onwriteend = function(e) {
-            console.log("finsihed writing ", fileEntry);
-        };
-        fileWriter.onerror = fsErrorHandler;
-
-        var contentBlob = new Blob(['Hello Git!'], {type: 'text/plain'});
-        fileWriter.write(contentBlob);
-    }, fsErrorHandler);
-}
 
 var fsErrorHandler = function (err) {
   console.log("fs error:", err);
@@ -65,9 +51,8 @@ function testPackRead() {
       store.getHeadSha(function(headSha) {
         console.log("got HEAD as:", headSha);
         store._retrieveObject(headSha, 'Commit', function(commit){
-          console.log("commit parent1 :", commit.parents[0]); 
+          console.log("commit parent1 :", commit.parents[0]);
           console.log("commit tree sha:", commit.tree);
-          
           store._getTreesFromCommits([commit.parents[0], headSha], function(trees) {
             console.log("got commit treeA, treeB",trees[0], trees[1]);
             showDiff(trees[0], trees[1], store);
@@ -84,25 +69,25 @@ function testPackRead() {
  */
 function showDiff(treeA, treeB, store) {
   require(['git-html5/commands/diff', 'npm/diff/diff', 'utils/misc_utils'], function (gitdiff, _na_, utils) { //JsDiff is a global, no AMD module
-    var result = gitdiff.diffTrees(treeA, treeB);
+    var result = gitdiff.diffTree(treeA, treeB);
     console.log("Diff Result:", result);
-    for (var i=0; i < result.modified.length; i++) {
-      console.log("modified:", result.modified[i]);
-      if (result.modified[i][0].isBlob) {
-        var shaA = result.modified[i][0].sha;
-        var shaB = result.modified[i][1].sha;
-        var name = result.modified[i][0].name;
+    for (var i=0; i < result.merge.length; i++) {
+      console.log("modified entries:", result.merge[i]);
+      if (result.merge[i].old.isBlob) {
+        var shaA = result.merge[i].old.sha;
+        var shaB = result.merge[i].nu.sha;
+        var name = result.merge[i].old.name;
         var gitDiffPrefix = utils.convertBytesToSha(shaA).substr(0, 7)+".."+utils.convertBytesToSha(shaB).substr(0, 7);
         store._retrieveBlobsAsStrings([shaA, shaB], function(objList){
-          //console.log("objList:", objList);
+          console.log("objList:", objList);
           if (objList.length == 2) {
-            console.log(JsDiff.createPatch(name, objList[0].data, objList[1].data));  
+            console.log(JsDiff.createPatch(name, objList[0].data, objList[1].data));
           } else {
             console.error("Did not find both Blob objects for SHA's:", objList);
           }
         });
       } else {
-        console.log("modified is tree: ", result.modified[i]);
+        console.log("modified is tree:", result.merge[i]);
       }
     }
   });
