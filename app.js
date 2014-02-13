@@ -43,7 +43,7 @@ var gitOpts = {
 };
 
 function testPackRead() {
-  require(['objectstore/file_repo'], function (FileObjectStore) {
+  require(['objectstore/file_repo', 'commands/diff'], function (FileObjectStore, diff) {
     console.debug("git store:", FileObjectStore);
     var store = new FileObjectStore(outDir); 
     store.init(function() {
@@ -55,41 +55,11 @@ function testPackRead() {
           console.log("commit tree sha:", commit.tree);
           store._getTreesFromCommits([commit.parents[0], headSha], function(trees) {
             console.log("got commit treeA, treeB",trees[0], trees[1]);
-            showDiff(trees[0], trees[1], store);
-          }); 
-        });  
-      });      
-    });
-  });
-}
-
-/**
- * Show a Diff for the given 2 trees, recursing down through all subtrees
- * TODO: the recursing bit !!!
- */
-function showDiff(treeA, treeB, store) {
-  require(['git-html5/commands/diff', 'npm/diff/diff', 'utils/misc_utils'], function (gitdiff, _na_, utils) { //JsDiff is a global, no AMD module
-    var result = gitdiff.diffTree(treeA, treeB);
-    console.log("Diff Result:", result);
-    for (var i=0; i < result.merge.length; i++) {
-      console.log("modified entries:", result.merge[i]);
-      if (result.merge[i].old.isBlob) {
-        var shaA = result.merge[i].old.sha;
-        var shaB = result.merge[i].nu.sha;
-        var name = result.merge[i].old.name;
-        var gitDiffPrefix = utils.convertBytesToSha(shaA).substr(0, 7)+".."+utils.convertBytesToSha(shaB).substr(0, 7);
-        store._retrieveBlobsAsStrings([shaA, shaB], function(objList){
-          console.log("objList:", objList);
-          if (objList.length == 2) {
-            console.log(JsDiff.createPatch(name, objList[0].data, objList[1].data));
-          } else {
-            console.error("Did not find both Blob objects for SHA's:", objList);
-          }
+            diff.renderDiff(trees[0], trees[1], store);
+          });
         });
-      } else {
-        console.log("modified is tree:", result.merge[i]);
-      }
-    }
+      });
+    });
   });
 }
 
