@@ -92,3 +92,29 @@ function showDiff(treeA, treeB, store) {
     }
   });
 }
+
+
+function testClone() {
+  outDir.getDirectory('test'+Date.now(), {create:true}, function(workDir){
+    chrome.fileSystem.getWritableEntry(workDir, function(entry) {
+      console.log("prj", entry);
+      require(['git-html5/commands/clone', 'objectstore/file_repo'], function (clone, FileObjectStore) {
+        var fileStore = new FileObjectStore(entry);
+        var options = {
+          dir: entry,
+          objectStore: fileStore,
+          url: 'https://github.com/maks/testsite.git',
+          depth: null,
+          progress: function (a) { console.log("clone progress", a); } 
+        };
+        
+        fileStore.init( function() {
+          console.log("cloning...", options.dir, typeof clone);
+            clone(options, function(a) {
+              console.log("clone has completed", a);
+            }, fsErrorHandler);
+          });
+      });
+    });
+  });
+}
