@@ -56,8 +56,8 @@ function testPackRead() {
           store._getTreesFromCommits([commit.parents[0], headSha], function(trees) {
             console.log("got commit treeA, treeB",trees[0], trees[1]);
             //diff.renderDiff(trees[0], trees[1], store);
-            diff.recursiveTreeDiff(trees[0], trees[1], null, store, function(tMaps) {
-              console.log("RECURSIVE Diff RESULT:", tMaps);
+            diff.recursiveTreeDiff(trees[0], trees[1], null, store, function(pathList) {
+              console.log("RECURSIVE Diff RESULT:", pathList);
             });
           });
         });
