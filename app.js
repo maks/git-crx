@@ -42,7 +42,36 @@ var gitOpts = {
     url: 'https://github.com/maks/testsite.git'
 };
 
-function testPackRead() {
+function testLog(limit) {
+  require(['objectstore/file_repo', 'commands/diff'], function (FileObjectStore, diff) {
+    console.debug("git store:", FileObjectStore);
+    var store = new FileObjectStore(outDir); 
+    store.init(function() {
+      console.log("loaded git obj store", store);
+      store.getHeadSha(function(headSha) {
+        console.log("got HEAD as:", headSha);
+        console.log("limit to:"+limit);
+        store._getCommitGraph([headSha], limit, function(commitList){
+          //console.log("commit graph", commitList);
+          for (var i=0; i < commitList.length; i++) {
+            var commit = commitList[i];
+            console.log("commit "+commit.sha+"\nauthor:"+commit.author.name+" <"+commit.author.email+">\nDate:"+commit.author.date+"\n\n\t"+commit.message+"\n");
+          }
+        });
+      });
+    });
+  }); 
+}
+
+function testShow(sha) {
+  
+}
+
+function showCommit(sha, repo, callback) {
+  
+}
+
+function testDiff() {
   require(['objectstore/file_repo', 'commands/diff'], function (FileObjectStore, diff) {
     console.debug("git store:", FileObjectStore);
     var store = new FileObjectStore(outDir); 
