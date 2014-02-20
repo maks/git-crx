@@ -20,6 +20,8 @@
     {"socket": [ "tcp-connect", "tcp-listen" ]}
   ],
   "icons": {
-    
+    "16": "icons/git-icon-black-16.png",
+    "128": "icons/git-icon-black-128.png",
+    "256": "icons/git-icon-black-256.png"
   }
 }
