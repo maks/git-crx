@@ -1,10 +1,10 @@
 {
-  "name": "js-git-diff test",
-  "short_name": "diff-test",
+  "name": "js-tig",
+  "short_name": "sj-tig",
   "version": "0.0.1",
   "manifest_version": 2,
   "minimum_chrome_version": "31",
-  "description": "js-git diff test",
+  "description": "A Browser App for local Git Repos",
   "offline_enabled": true,
   "app": {
     "background": {

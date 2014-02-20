@@ -1,7 +1,7 @@
 {
-  "name": "git-html5-testapp",
-  "version": "0.0.0",
-  "description": "git-html5-testapp",
+  "name": "sj-tig-crx",
+  "version": "0.0.1",
+  "description": "Chrome Packaged App for Browsing local Git Repos",
   "main": "index.js",
   "scripts": {
     "test": "tests.js"
