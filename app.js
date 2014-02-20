@@ -17,8 +17,42 @@ var dirEntryId;
 var FS;
 var outDir;
 
+var currentLineNum = 0;
+var MAX_LINES = 3;
+
 console.log("init");
-window.document.querySelector("#getdirbutton").onclick = function() { getFS(); };
+window.document.querySelector("#getDirButton").onclick = function() { getFS(); };
+moveSelLine();
+
+
+//key bindings
+Mousetrap.bind(['j', 'up'], function(x) { moveSelLine("up"); });
+Mousetrap.bind(['k', 'down'], function(x) { moveSelLine("down"); });
+Mousetrap.bind(['enter'], function(x) { selCurrentLine(); });
+
+function selCurrentLine() {
+  console.log("SELECT", $("#commit-"+currentLineNum));
+}
+
+function moveSelLine(direction) {
+  var nuLine = 0;
+  switch (direction) {
+    case "up":
+      nuLine = (currentLineNum == 0) ? currentLineNum : currentLineNum-1;
+    break;
+    case "down":
+      nuLine = (currentLineNum == MAX_LINES-1) ? currentLineNum : currentLineNum+1;
+    break;
+    default:
+      $("#commit-"+currentLineNum).addClass("selected");
+    break;
+  }
+  if (nuLine != currentLineNum) {
+    $("#commit-"+currentLineNum).removeClass();
+    $("#commit-"+nuLine).addClass("selected");
+    currentLineNum = nuLine;
+  }
+}
 
 
 function getFS() {

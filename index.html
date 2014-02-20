@@ -1,15 +1,50 @@
 <!doctype html>
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>sj-tig</title>
+    
     <link rel="stylesheet" href="style.css">
   </head>
   <body>
-    <div id="messages">Output:</div>
+  
+   <input type="button" id="getDirButton" value="Choose a Local Git Repo" />
+  
+    <div id="commitListContainer"> 
+      <table id="commitList">
+      <tr id="commit-0">
+        <td class="commitDate">2014-02-20</td>
+        <td class="commitTime">14:49</td>
+        <td class="commitAuthor">Maksim Lin</td>
+        <td class="commitType">o</td>
+        <td class="commitShortMesg"><span class="commitHeadBranch">[master]</span> add icons</td>
+      </tr>
+      <tr id="commit-1">
+        <td class="commitDate">2014-02-20</td>
+        <td class="commitTime">14:49</td>
+        <td class="commitAuthor">Maksim Lin</td>
+        <td class="commitType">o</td>
+        <td class="commitShortMesg"><span class="commitHeadBranch">[master]</span> add icons</td>
+      </tr>
+      <tr id="commit-2">
+        <td class="commitDate">2014-02-20</td>
+        <td class="commitTime">14:49</td>
+        <td class="commitAuthor">Maksim Lin</td>
+        <td class="commitType">o</td>
+        <td class="commitShortMesg"><span class="commitBranchName">[origin/master]</span> add icons</td>
+      </tr>
+      
+      </table>
+    </div>
     
-    <input type="button" id="getdirbutton" value="Choose a Local Git Repo" />
+    <div id="detailsContainer"></div>
+
+    <div id="messagesContainer"></div>
     
+     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="lib/jquery-1.11.0.min.js"></script>
+    <script src="lib/mousetrap.min.js"></script>
     <script data-main="../app.js" src="lib/require.js"></script>
     
   </body>

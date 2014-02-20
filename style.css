@@ -1,3 +1,47 @@
 body {
-  background-color: grey;
+  background-color: black;
+  color: green;
+  font-size: 14pt;
+}
+
+#commitList {
+  width: 100%;
+}
+
+#commitList td {
+  
+}
+
+.commitDate {
+  color: blue;
+}
+
+.commitTime {
+  color: blue;
+}
+
+.commitAuthor {
+  color: green;
+}
+
+.commitType {
+  color: blue;
+}
+
+.commitShortMesg {
+  color: white;
+}
+
+commitHeadBranch {
+  color: lightblue;
+}
+
+commitBranchName {
+  color: lightgreen;
+}
+
+tr.selected {
+  background-color: green;
+  color: white;
+  font-weight: bold;
 }
