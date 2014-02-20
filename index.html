@@ -13,28 +13,13 @@
   
     <div id="commitListContainer"> 
       <table id="commitList">
-      <tr id="commit-0">
-        <td class="commitDate">2014-02-20</td>
-        <td class="commitTime">14:49</td>
-        <td class="commitAuthor">Maksim Lin</td>
-        <td class="commitType">o</td>
-        <td class="commitShortMesg"><span class="commitHeadBranch">[master]</span> add icons</td>
+      <tr id="commit-0"  data-qattr="id c.sha" data-qrepeat="c commits">
+        <td class="commitDate" data-qtext="c.author.date.toDateString" ></td>
+        <!-- td class="commitTime" data-qtext="c.author.date.toTimeString" ></td -->
+        <td class="commitAuthor" data-qtext="c.author.name"></td>
+        <td class="commitType" data-qtext="" ></td>
+        <td class="commitShortMesg" data-qtext="c.message"><span class="commitHeadBranch" data-qtext="c.branchName"></span></td>
       </tr>
-      <tr id="commit-1">
-        <td class="commitDate">2014-02-20</td>
-        <td class="commitTime">14:49</td>
-        <td class="commitAuthor">Maksim Lin</td>
-        <td class="commitType">o</td>
-        <td class="commitShortMesg"><span class="commitHeadBranch">[master]</span> add icons</td>
-      </tr>
-      <tr id="commit-2">
-        <td class="commitDate">2014-02-20</td>
-        <td class="commitTime">14:49</td>
-        <td class="commitAuthor">Maksim Lin</td>
-        <td class="commitType">o</td>
-        <td class="commitShortMesg"><span class="commitBranchName">[origin/master]</span> add icons</td>
-      </tr>
-      
       </table>
     </div>
     
@@ -42,9 +27,12 @@
 
     <div id="messagesContainer"></div>
     
+    <script id="commitList-template" src="templates/commitList.hb" type="text/x-handlebars-template"></script>
+    
      <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="lib/jquery-1.11.0.min.js"></script>
     <script src="lib/mousetrap.min.js"></script>
+    <script src="lib/distal.js"></script>
     <script data-main="../app.js" src="lib/require.js"></script>
     
   </body>

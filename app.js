@@ -17,13 +17,10 @@ var dirEntryId;
 var FS;
 var outDir;
 
-var currentLineNum = 0;
-var MAX_LINES = 3;
+var currentLine = null;
 
 console.log("init");
 window.document.querySelector("#getDirButton").onclick = function() { getFS(); };
-moveSelLine();
-
 
 //key bindings
 Mousetrap.bind(['j', 'up'], function(x) { moveSelLine("up"); });
@@ -31,26 +28,38 @@ Mousetrap.bind(['k', 'down'], function(x) { moveSelLine("down"); });
 Mousetrap.bind(['enter'], function(x) { selCurrentLine(); });
 
 function selCurrentLine() {
-  console.log("SELECT", $("#commit-"+currentLineNum));
+  console.log("SEL", currentLine)
+  showCommit(currentLine.attr("id"));
 }
 
+// depends on each item in commit list table having an id of "commitX" where X is numeric row count
 function moveSelLine(direction) {
-  var nuLine = 0;
+  if (!currentLine && direction) {
+    return;
+  }
+  var nuLine;
   switch (direction) {
     case "up":
-      nuLine = (currentLineNum == 0) ? currentLineNum : currentLineNum-1;
+      nuLine = currentLine.prev();
+      if (nuLine[0]) {
+        currentLine.removeClass();
+        nuLine.addClass("selected");
+        currentLine = nuLine;
+      }
     break;
     case "down":
-      nuLine = (currentLineNum == MAX_LINES-1) ? currentLineNum : currentLineNum+1;
+      nuLine = currentLine.next();
+      if (nuLine[0]) {
+        currentLine.removeClass();
+        nuLine.addClass("selected");
+        currentLine = nuLine;
+      }
     break;
     default:
-      $("#commit-"+currentLineNum).addClass("selected");
+      currentLine = $("#commitList tr:first-child");
+      currentLine.addClass("selected");
+      console.log("currline",  $("#commitList tr:first-child"))
     break;
-  }
-  if (nuLine != currentLineNum) {
-    $("#commit-"+currentLineNum).removeClass();
-    $("#commit-"+nuLine).addClass("selected");
-    currentLineNum = nuLine;
   }
 }
 
@@ -62,6 +71,8 @@ function getFS() {
     chrome.fileSystem.getWritableEntry(entry, function(entry) {
         console.debug("got FS writable:", entry);      
         outDir = entry;
+        //show commit log...
+        testLog(100);
     });
   });
 }
@@ -91,18 +102,25 @@ function testLog(limit) {
             var commit = commitList[i];
             console.log("commit "+commit.sha+"\nauthor:"+commit.author.name+" <"+commit.author.email+">\nDate:"+commit.author.date+"\n\n\t"+commit.message+"\n");
           }
+          testLogHtml(commitList);
         });
       });
     });
   }); 
 }
 
-function testShow(sha) {
-  
+function testLogHtml(list) {
+  var data = { commits: list };
+   distal.format["commit-att"] = function(value) { 
+      return "commit"+value; 
+   }; 
+  distal(document.querySelector("#commitList"), data);
+  console.log("distal done")
+  moveSelLine();
 }
 
 function showCommit(sha, repo, callback) {
-  
+  console.log("SHOW COMMIT: "+sha);
 }
 
 function testDiff() {

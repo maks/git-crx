@@ -1,19 +1,28 @@
-body {
-  background-color: black;
-  color: green;
-  font-size: 14pt;
+html {
+  overflow-y: scroll;
 }
 
+body {
+  background-color: #272727;
+  color: rgb(145, 175, 201);
+  font-size: 12pt;
+}
+
+
 #commitList {
-  width: 100%;
+  /* width: 100%; */
+  border: black;
 }
 
 #commitList td {
+  padding: 1px;
   
+  padding-right: 1em;
+  align-content: stretch;
 }
 
 .commitDate {
-  color: blue;
+  color: slateblue;
 }
 
 .commitTime {
