@@ -85,6 +85,9 @@ commitBranchName {
 
 tr.selected {
   background-color: green;
+}
+
+tr.selected td {
   color: white;
   font-weight: bold;
 }
