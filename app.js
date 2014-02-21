@@ -27,6 +27,8 @@ window.document.querySelector("#getDirButton").onclick = function() { getFS(); }
 //key bindings
 Mousetrap.bind(['j', 'up'], function(x) { moveSelLine("up"); });
 Mousetrap.bind(['k', 'down'], function(x) { moveSelLine("down"); });
+Mousetrap.bind(['home'], function(x) { moveSelLine("home"); });
+Mousetrap.bind(['end'], function(x) { moveSelLine("end"); });
 Mousetrap.bind(['enter'], function(x) { selCurrentLine(); });
 
 jQuery.fn.extend({
@@ -45,7 +47,10 @@ function updateStatusBar(str) {
   $("#statusbarContainer").text(str);
 }
 
-// depends on each item in commit list table having an id of "commitX" where X is numeric row count
+function clearSel() {
+   currentLine.removeClass();
+}
+
 function moveSelLine(direction) {
   if (!currentLine && direction) {
     return;
@@ -54,29 +59,32 @@ function moveSelLine(direction) {
   switch (direction) {
     case "up":
       nuLine = currentLine.prev();
-      if (nuLine[0]) {
-        currentLine.removeClass();
-        nuLine.addClass("selected");
-        nuLine.scrollToMe();
-        currentLine = nuLine;
-      }
     break;
     case "down":
       nuLine = currentLine.next();
-      if (nuLine[0]) {
-        currentLine.removeClass();
-        nuLine.addClass("selected");
-        nuLine.scrollToMe();
-        currentLine = nuLine;
-      }
+    break;
+    case "home":
+      nuLine = currentLine.parent().children().first();
+    break;
+    case "end":
+       nuLine = currentLine.parent().children().last();
     break;
     default:
       currentLine = $("#commitList tr:first-child");
       currentLine.addClass("selected");
+      return;
     break;
   }
-  var sha = currentLine.attr("id");
-  updateStatusBar([sha, "-", "commit ", commitListShas.indexOf(sha)+1, " of ", commitListShas.length].join("  "));
+  if (nuLine && nuLine[0]) {
+    currentLine.removeClass();
+    nuLine.addClass("selected");
+    nuLine.scrollToMe();
+    currentLine = nuLine;
+  }
+  if (currentLine) {
+    var sha = currentLine.attr("id");
+    updateStatusBar([sha, "-", "commit ", commitListShas.indexOf(sha)+1, " of ", commitListShas.length].join("  "));
+  }
 }
 
 
@@ -88,7 +96,7 @@ function getFS() {
         console.debug("got FS writable:", entry);      
         outDir = entry;
         //show commit log...
-        testLog(100);
+        testLog(10);
     });
   });
 }
@@ -114,6 +122,7 @@ function testLog(limit) {
         console.log("limit to:"+limit);
         store._getCommitGraph([headSha], limit, function(commitList){
           //console.log("commit graph", commitList);
+          commitListShas = [];
           for (var i=0; i < commitList.length; i++) {
             var commit = commitList[i];
             commitListShas.push(commit.sha);
@@ -137,9 +146,17 @@ function testAMD() {
 function testLogHtml(list) {
   require(["lib/distal"], function(distal) { 
      var data = { commits: list };
-     distal.format["commit-att"] = function(value) { 
-        return "commit"+value; 
-     }; 
+     distal.format["lineOr70chr"] = function(value) { 
+        if ((typeof value.substr == "function") && (typeof value.indexOf == "function")) {
+          var l = value.indexOf('\n');
+          return value.trim().substr(0, (l > 0) ? Math.min(l,70) : 70);
+        } else {
+          return value;
+        }
+     };
+    if (currentLine) {
+      currentLine.removeClass();
+    }
     distal(document.querySelector("#commitList"), data);
     moveSelLine();
   });  

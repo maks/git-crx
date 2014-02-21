@@ -2,9 +2,11 @@
 
 ## A Chrome Packaged App for browsing local git repositories
 
-## WARNING ALPHA CODE !!
+## WARNING VERY ALPHA CODE !!
 
-this is very rough at the moment. 
+This is very rough at the moment. 
+Do **NOT** use this with any repositories you would cry about if they got deleted, corrupted or moved into an alternate universe.
+
 
 ## Install for testing
 * after git clone need ot git init the git-html5 submodule 
@@ -14,3 +16,13 @@ this is very rough at the moment.
 ## Debugging
 * open the js console using Chrome dev tools - all the action is happening there.
 
+## Usage
+
+I've tried to key the key bindings similiar to [Tig](http://jonas.nitro.dk/tig/manual.html).
+
+j (also Up arrow) - move up through commit list
+k (also Down arrow) - move down through commit list
+HOME - Jump to first commit
+END - Jump to last line
+Enter - open currently selected commit
+q - close the current view
