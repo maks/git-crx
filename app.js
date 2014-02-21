@@ -10,6 +10,7 @@ requirejs.config({
          'utils' : "git-html5/utils",
          'thirdparty' : "git-html5/thirdparty",
          'npm' : "node_modules",
+         'lib' : 'lib'
      }
 });
 
@@ -18,6 +19,7 @@ var FS;
 var outDir;
 
 var currentLine = null;
+var commitListShas = [];
 
 console.log("init");
 window.document.querySelector("#getDirButton").onclick = function() { getFS(); };
@@ -27,9 +29,20 @@ Mousetrap.bind(['j', 'up'], function(x) { moveSelLine("up"); });
 Mousetrap.bind(['k', 'down'], function(x) { moveSelLine("down"); });
 Mousetrap.bind(['enter'], function(x) { selCurrentLine(); });
 
+jQuery.fn.extend({
+scrollToMe: function () {
+    var x = jQuery(this).offset().top - 100;
+    $('html').scrollTop(x);
+}});
+
+
 function selCurrentLine() {
-  console.log("SEL", currentLine)
+  console.log("SEL", currentLine);
   showCommit(currentLine.attr("id"));
+}
+
+function updateStatusBar(str) {
+  $("#statusbarContainer").text(str);
 }
 
 // depends on each item in commit list table having an id of "commitX" where X is numeric row count
@@ -44,6 +57,7 @@ function moveSelLine(direction) {
       if (nuLine[0]) {
         currentLine.removeClass();
         nuLine.addClass("selected");
+        nuLine.scrollToMe();
         currentLine = nuLine;
       }
     break;
@@ -52,15 +66,17 @@ function moveSelLine(direction) {
       if (nuLine[0]) {
         currentLine.removeClass();
         nuLine.addClass("selected");
+        nuLine.scrollToMe();
         currentLine = nuLine;
       }
     break;
     default:
       currentLine = $("#commitList tr:first-child");
       currentLine.addClass("selected");
-      console.log("currline",  $("#commitList tr:first-child"))
     break;
   }
+  var sha = currentLine.attr("id");
+  updateStatusBar([sha, "-", "commit ", commitListShas.indexOf(sha)+1, " of ", commitListShas.length].join("  "));
 }
 
 
@@ -100,7 +116,8 @@ function testLog(limit) {
           //console.log("commit graph", commitList);
           for (var i=0; i < commitList.length; i++) {
             var commit = commitList[i];
-            console.log("commit "+commit.sha+"\nauthor:"+commit.author.name+" <"+commit.author.email+">\nDate:"+commit.author.date+"\n\n\t"+commit.message+"\n");
+            commitListShas.push(commit.sha);
+            //console.log("commit "+commit.sha+"\nauthor:"+commit.author.name+" <"+commit.author.email+">\nDate:"+commit.author.date+"\n\n\t"+commit.message+"\n");
           }
           testLogHtml(commitList);
         });
@@ -109,14 +126,23 @@ function testLog(limit) {
   }); 
 }
 
+function testAMD() {
+  require(["lib/distal", "js/ui"], function(distal, ui) { 
+    //console.log("distal", typeof distal);
+    //console.log("ui", ui);
+  });
+  
+}
+
 function testLogHtml(list) {
-  var data = { commits: list };
-   distal.format["commit-att"] = function(value) { 
-      return "commit"+value; 
-   }; 
-  distal(document.querySelector("#commitList"), data);
-  console.log("distal done")
-  moveSelLine();
+  require(["lib/distal"], function(distal) { 
+     var data = { commits: list };
+     distal.format["commit-att"] = function(value) { 
+        return "commit"+value; 
+     }; 
+    distal(document.querySelector("#commitList"), data);
+    moveSelLine();
+  });  
 }
 
 function showCommit(sha, repo, callback) {

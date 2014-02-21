@@ -1,16 +1,50 @@
 html {
-  overflow-y: scroll;
+  
 }
 
 body {
   background-color: #272727;
   color: rgb(145, 175, 201);
-  font-size: 12pt;
+  font-family: "Liberation Mono", "Mono";
+  font-size: 11pt;
+  font-style: normal;
+  /* font-weight: lighter; */
 }
 
+#mainContainer {
+  width: 100%;
+  padding-top: 2em; 
+  padding-bottom: 1em;
+    
+}
 
-#commitList {
-  /* width: 100%; */
+#menubarContainer {
+  display: block;
+  position: fixed;
+  top: 0px;
+  padding-top: 0.2em;
+  padding-bottom: 0.5em;
+  background: #272727;
+  margin-bottom: 50px;
+  width: 100%;
+}
+
+#statusbarContainer {
+  height: 1em;
+  width:  100%;
+  position: fixed;
+  bottom: 0px;
+  padding-top: 0.2em;
+  padding-bottom: 0.5em;
+  margin: 0px;
+  background: #272727;
+}
+
+#commitListContainer {
+  overflow-y: scroll;
+}
+
+#commitList {  
   border: black;
 }
 
