@@ -20,6 +20,7 @@ var outDir;
 
 var currentLine = null;
 var commitListShas = [];
+var currentRepo;
 
 console.log("init");
 window.document.querySelector("#getDirButton").onclick = function() { getFS(); };
@@ -29,22 +30,46 @@ Mousetrap.bind(['j', 'up'], function(x) { moveSelLine("up"); });
 Mousetrap.bind(['k', 'down'], function(x) { moveSelLine("down"); });
 Mousetrap.bind(['home'], function(x) { moveSelLine("home"); });
 Mousetrap.bind(['end'], function(x) { moveSelLine("end"); });
-Mousetrap.bind(['enter'], function(x) { selCurrentLine(); });
+Mousetrap.bind(['enter'], function(x) { selectCurrentLine(); });
+Mousetrap.bind(['q'], function(x) { $(".CodeMirror").remove(); });
+
 
 jQuery.fn.extend({
 scrollToMe: function () {
     var x = jQuery(this).offset().top - 100;
-    $('html').scrollTop(x);
+    $(window).scrollTop(x);
 }});
 
+//setup Codemirror
+var cmConfig = {
+  mode: "text/x-diff",
+  theme: "midnight",
+  styleActiveLine: true,
+  readonly: true
+}
+var myCodeMirror;
+initCM();
+myCodeMirror.setSize({ height: "50%"})
 
-function selCurrentLine() {
+function selectCurrentLine() {
   console.log("SEL", currentLine);
-  showCommit(currentLine.attr("id"));
+  renderCommit(currentLine.attr("id"), currentRepo, function(commitTxt) {
+    console.log("show commit DONE");
+    myCodeMirror.getDoc().setValue(commitTxt);
+  });
+}
+
+function initCM() {
+  if (!myCodeMirror) {
+    console.log("cm init")
+    myCodeMirror = CodeMirror(document.querySelector("#mainContainer"), cmConfig);
+    $(".CodeMirror").height("50%");
+    $("#commitListContainer").height("50%");
+  }
 }
 
 function updateStatusBar(str) {
-  $("#statusbarContainer").text(str);
+  $("footer").text(str);
 }
 
 function clearSel() {
@@ -96,7 +121,7 @@ function getFS() {
         console.debug("got FS writable:", entry);      
         outDir = entry;
         //show commit log...
-        testLog(10);
+        testLog(15);
     });
   });
 }
@@ -114,7 +139,8 @@ var gitOpts = {
 function testLog(limit) {
   require(['objectstore/file_repo', 'commands/diff'], function (FileObjectStore, diff) {
     console.debug("git store:", FileObjectStore);
-    var store = new FileObjectStore(outDir); 
+    var store = new FileObjectStore(outDir);
+    currentRepo = store;
     store.init(function() {
       console.log("loaded git obj store", store);
       store.getHeadSha(function(headSha) {
@@ -162,8 +188,27 @@ function testLogHtml(list) {
   });  
 }
 
-function showCommit(sha, repo, callback) {
+function renderCommit(sha, store, callback) {
   console.log("SHOW COMMIT: "+sha);
+  require(['commands/diff'], function (diff) {    
+    store._retrieveObject(sha, 'Commit', function(commit){
+      console.log("commit parent1 :", commit.parents[0]);
+      if (commit.parents.length > 1) {
+        console.error("CANT HANDLE MERGE COMMITS YET");
+        return;
+      }
+      console.log("commit tree sha:", commit.tree);
+      store._getTreesFromCommits([commit.parents[0], sha], function(trees) {
+        console.log("got commit treeA, treeB",trees[0], trees[1]);     
+        diff.recursiveTreeDiff(trees[0], trees[1], null, store, function(pathList) {
+          console.log("RECURSIVE Diff RESULT:", pathList);
+          diff.renderDiff(pathList, store, function(txt) {
+            callback(txt);
+          });
+        });
+      });
+    });
+  });  
 }
 
 function testDiff() {

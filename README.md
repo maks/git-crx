@@ -20,8 +20,8 @@ Do **NOT** use this with any repositories you would cry about if they got delete
 
 I've tried to key the key bindings similiar to [Tig](http://jonas.nitro.dk/tig/manual.html).
 
-j (also Up arrow) - move up through commit list
-k (also Down arrow) - move down through commit list
+j - move up through commit list
+k - move down through commit list
 HOME - Jump to first commit
 END - Jump to last line
 Enter - open currently selected commit

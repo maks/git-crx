@@ -5,13 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>sj-tig</title>
     
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/codemirror.css">
+    <link rel="stylesheet" href="css/midnight.css">
+    <link rel="stylesheet" href="css/style.css">
   </head>
   <body>
+  <header>
+    <input type="button" id="getDirButton" value="Choose a Local Git Repo" />
+  </header>
   
-  <div id="menubarContainer">
-      <input type="button" id="getDirButton" value="Choose a Local Git Repo" />
-    </div>
   <div id="mainContainer">
      <div id="commitListContainer"> 
         <table id="commitList">
@@ -24,21 +26,15 @@
         </tr>
         </table>
       </div>
-      
-      <div id="detailsContainer"></div>
-  
-      <div id="messagesContainer"></div>
     </div>
     
-    <div id="statusbarContainer">STATUSBAR</div>
-    
-    <script id="commitList-template" src="templates/commitList.hb" type="text/x-handlebars-template"></script>
+    <footer>STATUSBAR</footer>
     
      <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="lib/jquery-1.11.0.min.js"></script>
     <script src="lib/mousetrap.min.js"></script>
-    <!-- script src="lib/distal.js"></script -->
+    <script src="lib/codemirror.js"></script>
+    <script src="lib/mode/diff/diff.js"></script>
     <script data-main="../app.js" src="lib/require.js"></script>
-    
   </body>
 </html>
