@@ -1,19 +1,17 @@
-define(['require', 'objectstore/file_repo', 'commands/diff', 'git-html5/commands/clone', './gui'], function(require, FileObjectStore, diff, clone, gui) {
+define(['require', 'objectstore/file_repo', 'commands/diff', 'git-html5/commands/clone'], function(require, FileObjectStore, diff, clone) {
 
     var outDir;
     var FS;
     var currentRepo;
 
-    function getFS() {
+    function getFS(callback) {
       chrome.fileSystem.chooseEntry({ type : "openDirectory" }, function(entry) {
         console.debug("got FS Dir:", entry);
         FS = entry.filesystem;
         chrome.fileSystem.getWritableEntry(entry, function(entry) {
             console.debug("got FS writable:", entry);
-            outDir = entry;
-            //show commit log...
-            gui = require('./gui'); //need this due to CIRCULAR dep on this modules inside gui module !!
-            getLog(15, gui.showLog);
+            outDir = entry;            
+            callback(entry);
         });
       });
     }
@@ -91,27 +89,24 @@ define(['require', 'objectstore/file_repo', 'commands/diff', 'git-html5/commands
         });
     }
 
-    function cloneRemote(remoteUrl, localDirEntry) {
-      outDir.getDirectory('test'+Date.now(), {create:true}, function(workDir){
-        chrome.fileSystem.getWritableEntry(workDir, function(entry) {
-          console.log("prj", entry);          
-            var fileStore = new FileObjectStore(entry);
+    function cloneRemote(remoteUrl, localDirEntry, progressCB, completedCB) {
+          console.log("clone into dir", localDirEntry);          
+            var fileStore = new FileObjectStore(localDirEntry);
             var options = {
-              dir: entry,
+              dir: localDirEntry,
               objectStore: fileStore,
-              url: 'https://github.com/maks/testsite.git',
+              url: remoteUrl,
               depth: null,
-              progress: function (a) { console.log("clone progress", a); } 
+              progress: progressCB 
             };
             
             fileStore.init( function() {
               console.log("cloning...", options.dir, typeof clone);
                 clone(options, function(a) {
                   console.log("clone has completed", a);
+                  completedCB(a);
                 }, fsErrorHandler);
-              });          
-        });
-      });
+            });         
     }
     
     function getCurrentRepo() {
@@ -122,6 +117,7 @@ define(['require', 'objectstore/file_repo', 'commands/diff', 'git-html5/commands
         cloneRemote: cloneRemote,
         renderCommit: renderCommit,
         getFS: getFS,
-        getCurrentRepo: getCurrentRepo
+        getCurrentRepo: getCurrentRepo,
+        getLog: getLog
     };
 });

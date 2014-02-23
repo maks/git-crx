@@ -20,11 +20,11 @@ var dirEntryId;
 
 console.log("App Init");
 
-require(['js/keys', 'js/git-cmds'], function (keys, git) {
+require(['js/keys', 'js/git-cmds', 'js/gui'], function (keys, git, gui) {
   //setup keyboard key bindings
   keys.init();
   
   //wire-up initial menu
-  window.document.querySelector("#getDirButton").onclick = function() { git.getFS(); };
+  window.document.querySelector("#getDirButton").onclick = function() { git.getFS(gui.openLocalRepo); };
 });
 

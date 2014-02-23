@@ -98,11 +98,61 @@ define(['./git-cmds', 'lib/distal'], function(git, distal) {
         distal(document.querySelector("#commitList"), data);
         moveSelLine();
     }
+    
+    function askForRemote() {
+        function progress (a) { console.log("clone progress", a); };
+        function completed (a) { console.log("clone COMPLETED!", a); };
+        var repoDir;
+        
+        $("#getDirButton").hide();
+        $("#remoteUrl").show();
+        $("#remoteOpen").show();
+        $("#localParentDir").click(function() {
+            git.getFS(function(outDir) {
+                var url = $("#remoteUrl").val();
+                var dirName = getRepoNameFromUrl(url);
+                console.log("calc name to be", dirName);
+                outDir.getDirectory(dirName, {create:true}, function(nuDir){
+                    chrome.fileSystem.getWritableEntry(nuDir, function(writableDir) {
+                        repoDir = writableDir;
+                        console.log("set repoDir", repoDir);
+                    });
+                });
+            });
+        });
+        $("#cloneButton").click(function() {
+            console.log('CLONE!',  $("#remoteUrl"));
+            git.cloneRemote( $("#remoteUrl").val(), repoDir, progress, completed);
+        });
+    }    
+    
+    function getRepoNameFromUrl(url) {
+        var i1 = url.lastIndexOf(".git");
+        var i2 = url.lastIndexOf("/");
+        if (i1 > 0 && i2 > 0 && i1 > i2) {
+            console.log(i1)
+            return url.substring(i2+1, i1);
+        } else {
+            return url.substring(i2+1, url.length);
+        }
+    }
+    
+    function chooseLocalRepo() {
+        $("#getDirButton").show();
+    }
+    
+    function openLocalRepo() {
+        //show commit log...
+        git.getLog(15, showLog);
+    }
 
     return {
         clearSel: clearSel,
         moveSelLine: moveSelLine,
         selectCurrentLine: selectCurrentLine,
-        showLog: showLog
+        showLog: showLog,
+        askForRemote: askForRemote,
+        chooseLocalRepo: chooseLocalRepo,
+        openLocalRepo: openLocalRepo
     };
 });

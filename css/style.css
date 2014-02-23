@@ -43,6 +43,15 @@ footer {
   width: 100%;
 }
 
+#remoteOpen {
+  display: none;
+}
+
+#getDirButton {
+  display: none;
+}
+
+
 #statusbarContainer {
   height: 1em;
   width:  100%;
