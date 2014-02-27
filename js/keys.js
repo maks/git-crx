@@ -7,7 +7,7 @@ define(['./gui'], function(ui) {
         Mousetrap.bind(['enter'], function(x) { ui.selectCurrentLine(); });
         Mousetrap.bind(['q'], function(x) { $(".CodeMirror").remove(); });
         Mousetrap.bind(['mod+n'], ui.askForRemote );
-        Mousetrap.bind(['mod+o'], ui.chooseLocalRepo );
+        Mousetrap.bind(['mod+o'], ui.chooseFSForLocalRepo );
     }
     return  {
         init: initKeyBindings

@@ -17,7 +17,6 @@ requirejs.config({
 
 var dirEntryId;
 
-
 console.log("App Init");
 
 require(['js/keys', 'js/git-cmds', 'js/gui'], function (keys, git, gui) {

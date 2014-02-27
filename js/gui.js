@@ -10,7 +10,7 @@ define(['./git-cmds', 'js/hairlip', 'js/paged-table'], function(git, hairlip, pa
     var myCodeMirror;
     var currentLine = null;
     var commitList = [];
-        
+    
     function selectCurrentLine() {
       console.log("SEL", currentLine);
       initCM();
@@ -128,31 +128,23 @@ define(['./git-cmds', 'js/hairlip', 'js/paged-table'], function(git, hairlip, pa
         }
     }
     
-    function chooseLocalRepo() {
-        hideMenu();
-        $("#getDirButton").show();
-    }
-    
-    function hideMenu() {
-        $("#getDirButton").hide();
-        $("#remoteOpen").hide();
-    }
-    
-    function openLocalRepo() {
-        //show commit log...
-        git.getLog(25, function(x) {
-            hideMenu();
-            showLog(x);
+    function chooseFSForLocalRepo() {
+        git.getFS(function() {
+            var MAX_COMMIT_HIST = 25;
+            //show commit log...
+            git.getLog(MAX_COMMIT_HIST, function(x) {
+                $("#remoteOpen").hide(); //hide clone-repo ui in case it was open
+                showLog(x);
+            });
         });
     }
-
+    
     return {
         clearSel: clearSel,
         moveSelLine: moveSelLine,
         selectCurrentLine: selectCurrentLine,
         showLog: showLog,
         askForRemote: askForRemote,
-        chooseLocalRepo: chooseLocalRepo,
-        openLocalRepo: openLocalRepo
+        chooseFSForLocalRepo: chooseFSForLocalRepo
     };
 });
