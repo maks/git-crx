@@ -1,4 +1,4 @@
-define(['./git-cmds', 'lib/distal'], function(git, distal) {
+define(['./git-cmds', 'js/bs-templates', 'js/paged-table'], function(git, templates, pagedTable) {
 
     //setup Codemirror
     var cmConfig = {
@@ -10,7 +10,7 @@ define(['./git-cmds', 'lib/distal'], function(git, distal) {
     var myCodeMirror;
     var currentLine = null;
     
-    var commitListShas = [];
+    var commitList = [];
 
     function selectCurrentLine() {
       console.log("SEL", currentLine);
@@ -68,34 +68,40 @@ define(['./git-cmds', 'lib/distal'], function(git, distal) {
       }
       if (currentLine) {
         var sha = currentLine.attr("id");
-        updateStatusBar([sha, "-", "commit ", commitListShas.indexOf(sha)+1, " of ", commitListShas.length].join("  "));
+        //FIXME: 
+        //updateStatusBar([sha, "-", "commit ", commitListShas.indexOf(sha)+1, " of ", commitListShas.length].join("  "));
       }
     }
 
-    
-    function showLog(commitList) {
-         var data = { commits: commitList };
-         console.log("SHOW commits", data);
-         
-         commitListShas = [];
-         for (var i=0; i < commitList.length; i++) {
-            var commit = commitList[i];
-            commitListShas.push(commit.sha);
-         }
-         
-         distal.format["lineOr70chr"] = function(value) { 
-            if ((typeof value.substr == "function") && (typeof value.indexOf == "function")) {
+
+    /**
+     * @return html for a TR that represents the given commit
+     */
+    function renderTRCommitLogLine(commitData) {
+         function lineOr70chr(value) { 
               var l = value.indexOf('\n');
               return value.trim().substr(0, (l > 0) ? Math.min(l,70) : 70);
-            } else {
-              return value;
-            }
          };
-        if (currentLine) {
-          currentLine.removeClass();
+        var data = {
+            author : commitData.author.name,
+            email : commitData.author.email,
+            date : commitData.author.date.toDateString(),
+            time : commitData.author.date.toTimeString(),
+            mesg : lineOr70chr(commitData.message)
         }
-        distal(document.querySelector("#commitList"), data);
-        moveSelLine();
+        var trTempl = '<tr> \
+            <td class="commitDate">${date}</td> \
+            <td class="commitTime">${time}</td> \
+            <td class="commitAuthor>${name}</td> \
+            <td class="commitType">${type}</td> \
+            <td class="commitShortMesg"><span class="commitHeadBranch">${branch}</span>${mesg}</td> \
+        </tr>';
+        return templates(data, trTempl);
+    }
+    
+    function showLog(commitList) {
+         commitListShas = commitList;
+         pagedTable.init(10, commitList, renderTRCommitLogLine, document.querySelector("#commitList"));
     }
     
     function askForRemote() {
