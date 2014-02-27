@@ -11,11 +11,10 @@ define(['./git-cmds', 'lib/distal'], function(git, distal) {
     var currentLine = null;
     
     var commitListShas = [];
-        
-    initCM();
-    
+
     function selectCurrentLine() {
       console.log("SEL", currentLine);
+      initCM();
       git.renderCommit(currentLine.attr("id"), git.getCurrentRepo(), function(commitTxt) {
         console.log("show commit DONE");
         myCodeMirror.getDoc().setValue(commitTxt);
@@ -105,7 +104,6 @@ define(['./git-cmds', 'lib/distal'], function(git, distal) {
         var repoDir;
         
         $("#getDirButton").hide();
-        $("#remoteUrl").show();
         $("#remoteOpen").show();
         $("#localParentDir").click(function() {
             git.getFS(function(outDir) {
@@ -138,12 +136,21 @@ define(['./git-cmds', 'lib/distal'], function(git, distal) {
     }
     
     function chooseLocalRepo() {
+        hideMenu();
         $("#getDirButton").show();
+    }
+    
+    function hideMenu() {
+        $("#getDirButton").hide();
+        $("#remoteOpen").hide();
     }
     
     function openLocalRepo() {
         //show commit log...
-        git.getLog(15, showLog);
+        git.getLog(25, function(x) {
+            hideMenu();
+            showLog(x);
+        });
     }
 
     return {

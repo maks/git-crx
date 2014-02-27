@@ -32,15 +32,18 @@ define(['require', 'objectstore/file_repo', 'commands/diff', 'git-html5/commands
                 console.log("got HEAD as:", headSha);
                 console.log("limit to:"+limit);
                 store._getCommitGraph([headSha], limit, function(commitList){
-                    //console.log("commit graph", commitList);
-//                     for (var i=0; i < commitList.length; i++) {
-//                         var commit = commitList[i];
-//                         console.log("commit "+commit.sha+"\nauthor:"+commit.author.name+" <"+commit.author.email+">\nDate:"+commit.author.date+"\n\n\t"+commit.message+"\n");
-//                     }
+                //renderAsTextCommitLog(commitList, function(x) { console.log(x) });
                 callback(commitList);
                 });
             });
         });
+    }
+    
+    function renderAsTextCommitLog(commitList, callback) {
+        for (var i=0; i < commitList.length; i++) {
+            var commit = commitList[i];
+            callback("commit "+commit.sha+"\nauthor:"+commit.author.name+" <"+commit.author.email+">\nDate:"+commit.author.date+"\n\n\t"+commit.message+"\n");
+        }
     }
     
     function renderCommit(sha, store, callback) {
