@@ -1,7 +1,7 @@
 define(function() {
  //implements a paginated html table "control"
 
-    var currentLine = 0;
+    var currentLine;
     var data;
     var trRendr;
     var pgSize;
@@ -23,22 +23,71 @@ define(function() {
         jqTable.empty();
         
         for (var i=0; i < pgSize; i++) {
-            $(jqTable.append(trRendr(data[i])));
+            jqTable.append(trRendr(data[i]));
+        }
+        
+        currentLine = jqTable.find("tr").eq(0);
+        currentLine.addClass("selected");
+        console.log("curr line", currentLine);
+    }
+    
+    
+    function next() {
+        console.log("PGT down")
+        var nuLine = currentLine.next();
+        if (nuLine[0]) {
+            currentLine.removeClass("selected");
+            nuLine.addClass("selected");
+            currentLine = nuLine;
+        } else {
+            //at bottom, need to page down if possible
+            pageDown()
         }
     }
     
-    function up() {
+    function prev() {
+        console.log("PGT up")
+        var nuLine = currentLine.prev();
+        if (nuLine[0]) {
+            currentLine.removeClass("selected");
+            nuLine.addClass("selected");
+            currentLine = nuLine;
+        } else {
+            //at top, need to page up if possible
+            pageUp();
+        }
+    }
+    
+    function pageUp() {
+        console.error("pageup TODO");
+    }
+    
+    function pageDown() {
+        console.error("pagedown TODO");
+    }
+    
+     
+    function first() {
         
     }
     
-    function down() {
+     
+    function last() {
         
+    }
+    
+     
+    function getCurrent() {
+        return currentLine;
     }
 
     return {
         init: init,
-        down: down,
-        up: up
+        next: next,
+        prev: prev,
+        first: first,
+        last: last,
+        getCurrent: getCurrent
     } 
     
 });

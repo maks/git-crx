@@ -27,8 +27,3 @@ require(['js/keys', 'js/git-cmds', 'js/gui'], function (keys, git, gui) {
   //wire-up initial menu
   window.document.querySelector("#getDirButton").onclick = function() { git.getFS(gui.openLocalRepo); };
 });
-
-var tmpl;
-require(['js/bs-templates'], function(templates) {
-  tmpl = templates;
-});

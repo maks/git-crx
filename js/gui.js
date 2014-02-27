@@ -1,4 +1,4 @@
-define(['./git-cmds', 'js/bs-templates', 'js/paged-table'], function(git, templates, pagedTable) {
+define(['./git-cmds', 'js/hairlip', 'js/paged-table'], function(git, hairlip, pagedTable) {
 
     //setup Codemirror
     var cmConfig = {
@@ -9,9 +9,8 @@ define(['./git-cmds', 'js/bs-templates', 'js/paged-table'], function(git, templa
     };
     var myCodeMirror;
     var currentLine = null;
-    
     var commitList = [];
-
+        
     function selectCurrentLine() {
       console.log("SEL", currentLine);
       initCM();
@@ -39,35 +38,24 @@ define(['./git-cmds', 'js/bs-templates', 'js/paged-table'], function(git, templa
     }
     
     function moveSelLine(direction) {
-      if (!currentLine && direction) {
-        return;
-      }
       var nuLine;
       switch (direction) {
         case "up":
-          nuLine = currentLine.prev();
+          pagedTable.prev();
         break;
         case "down":
-          nuLine = currentLine.next();
+          pagedTable.next();
         break;
         case "home":
-          nuLine = currentLine.parent().children().first();
+          pagedTable.first();
         break;
         case "end":
-           nuLine = currentLine.parent().children().last();
+           pagedTable.last();
         break;
-        default:
-          currentLine = $("#commitList tr:first-child");
-          currentLine.addClass("selected");
-        return;
       }
-      if (nuLine && nuLine[0]) {
-        currentLine.removeClass();
-        nuLine.addClass("selected");
-        currentLine = nuLine;
-      }
-      if (currentLine) {
-        var sha = currentLine.attr("id");
+      var curr = pagedTable.getCurrent();
+      if (curr) {
+        var sha = curr.attr("id");
         //FIXME: 
         //updateStatusBar([sha, "-", "commit ", commitListShas.indexOf(sha)+1, " of ", commitListShas.length].join("  "));
       }
@@ -84,19 +72,18 @@ define(['./git-cmds', 'js/bs-templates', 'js/paged-table'], function(git, templa
          };
         var data = {
             author : commitData.author.name,
-            email : commitData.author.email,
             date : commitData.author.date.toDateString(),
-            time : commitData.author.date.toTimeString(),
+            time : commitData.author.date.getHours()+":"+commitData.author.date.getMinutes(),
             mesg : lineOr70chr(commitData.message)
         }
-        var trTempl = '<tr> \
-            <td class="commitDate">${date}</td> \
-            <td class="commitTime">${time}</td> \
-            <td class="commitAuthor>${name}</td> \
-            <td class="commitType">${type}</td> \
-            <td class="commitShortMesg"><span class="commitHeadBranch">${branch}</span>${mesg}</td> \
+        var trTempl = '<tr id="{{sha}}"> \
+            <td class="commitDate">{{date}}</td> \
+            <td class="commitTime">{{time}}</td> \
+            <td class="commitAuthor">{{author}}</td> \
+            <td class="commitType">{{type}}</td> \
+            <td class="commitShortMesg"><span class="commitHeadBranch">{{branch}}</span>{{mesg}}</td> \
         </tr>';
-        return templates(data, trTempl);
+        return hairlip(data, trTempl);
     }
     
     function showLog(commitList) {
