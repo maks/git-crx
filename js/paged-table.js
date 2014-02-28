@@ -1,35 +1,42 @@
+//implements a paginated html table UI
 define(function() {
- //implements a paginated html table "control"
-
     var currentLine; //current selected TR of table
     var currentIndex; //index into data matching currentLine
-    var data;
-    var trRendr;
-    var pgSize;
-    var domTable;
+    var conf;
 
     /**
-     * tablePageSize - number of rows per "page" in table
+     * config object with following properties:
+     * pageSize - number of rows per "page" in table
      * data - Array of objects, each obj represents 1 obj of the table
      * trRenderer - function returns the html render for a given line of the table
      * tableElem - DOM  Table element for this table
      */
-    function init(tablePageSize, tableData, trRenderer, tableElem) {
-        data = tableData;
-        trRendr = trRenderer;
-        pgSize = tablePageSize;
-        domTable = tableElem;
-        
+    function init(config, callback) {
+        var errMesg;
+        if (!config.pageSize || (typeof config.pageSize != "number")) {
+            errMesg = "pagesize missing or not a number";
+        } else if (!config.data || !config.data.length) {
+            errMesg = "data missing or not an array";
+        } else if (!config.trRenderer || (typeof config.trRenderer != "function")) {
+            errMesg = "trRenderer missing or not a function";
+        } else if (!config.tableElem) {
+            errMesg = "tableElem missing";
+        }
+        if (errMesg) {
+            console.error(errMesg, config);
+            throw new Error(errMesg) ;
+        }
+        conf = config;
         fillTable(0);
+        callback();
     }
     
     function fillTable(startIdx, startAtBottom) {
-        var jqTable = $(domTable);
+        var jqTable = $(conf.tableElem);
         jqTable.empty();
         
-        for (currentIndex = startIdx; (currentIndex < (startIdx+pgSize)) && (currentIndex < data.length); currentIndex++) {
-            jqTable.append(trRendr(data[currentIndex]));
-            console.log(currentIndex);
+        for (currentIndex = startIdx; (currentIndex < (startIdx+conf.pageSize)) && (currentIndex < conf.data.length); currentIndex++) {
+            jqTable.append(conf.trRenderer(conf.data[currentIndex]));
         }
         
         if (!startAtBottom) {
@@ -50,7 +57,7 @@ define(function() {
             currentIndex++;
         } else {
             //at bottom, need to page down if possible
-            nextPage()
+            nextPage();
         }
     }
     
@@ -69,12 +76,12 @@ define(function() {
     
     function prevPage() {
         if (currentIndex > 0) {
-            fillTable(currentIndex-pgSize, true);
+            fillTable(currentIndex-conf.pageSize, true);
         }
     }
     
     function nextPage() {
-        if (currentIndex < data.length-1) {
+        if (currentIndex < conf.data.length-1) {
             fillTable(currentIndex+1);
         }
     }
@@ -86,13 +93,21 @@ define(function() {
     
      
     function last() {
-        var topOfLastPage = Math.floor(data.length / pgSize) * pgSize;
+        var topOfLastPage = Math.floor(conf.data.length / conf.pageSize) * conf.pageSize;
         fillTable(topOfLastPage);
     }
     
      
-    function getCurrent() {
+    function getCurrentTR() {
         return currentLine;
+    }
+    
+    function getCurrentIndex() {
+        return currentIndex;
+    }
+    
+    function getData() {
+        return conf.data;
     }
 
     return {
@@ -101,7 +116,8 @@ define(function() {
         prev: prev,
         first: first,
         last: last,
-        getCurrent: getCurrent
-    } 
-    
+        getCurrentTR: getCurrentTR,
+        getCurrentIndex: getCurrentIndex,
+        getData: getData
+    };
 });

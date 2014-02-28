@@ -1,3 +1,5 @@
+/*jshint multistr:true */
+
 define(['./git-cmds', 'js/hairlip', 'js/paged-table'], function(git, hairlip, pagedTable) {
 
     //setup Codemirror
@@ -7,15 +9,16 @@ define(['./git-cmds', 'js/hairlip', 'js/paged-table'], function(git, hairlip, pa
       styleActiveLine: true,
       readonly: true
     };
+    
     var myCodeMirror;
-    var currentLine = null;
-    var commitList = [];
+    var FULL_NUM_COMMIT_LINES = 20;
     
     function selectCurrentLine() {
+      var currentLine = pagedTable.getCurrentTR();
       console.log("SEL", currentLine);
       initCM();
       git.renderCommit(currentLine.attr("id"), git.getCurrentRepo(), function(commitTxt) {
-        console.log("show commit DONE");
+        console.log("show commit txt in CM...");
         myCodeMirror.getDoc().setValue(commitTxt);
       });
     }
@@ -29,14 +32,17 @@ define(['./git-cmds', 'js/hairlip', 'js/paged-table'], function(git, hairlip, pa
       }
     }
     
-    function updateStatusBar(str) {
+   function updateStatusBar() {
+      var currIdx = pagedTable.getCurrentIndex();
+      var size = pagedTable.getData().length;
+      var currTr = pagedTable.getCurrentTR();
+      renderStatusBar([currTr.attr("id"), "-", "commit", currIdx + 1 , "of", size].join(" ")); //+1 because users like to see 1 indexed not zero
+    }
+    
+    function renderStatusBar(str) {
       $("footer").text(str);
     }
-    
-    function clearSel() {
-       currentLine.removeClass();
-    }
-    
+
     function moveSelLine(direction) {
       var nuLine;
       switch (direction) {
@@ -53,29 +59,24 @@ define(['./git-cmds', 'js/hairlip', 'js/paged-table'], function(git, hairlip, pa
            pagedTable.last();
         break;
       }
-      var curr = pagedTable.getCurrent();
-      if (curr) {
-        var sha = curr.attr("id");
-        //FIXME: 
-        //updateStatusBar([sha, "-", "commit ", commitListShas.indexOf(sha)+1, " of ", commitListShas.length].join("  "));
-      }
+      updateStatusBar();
     }
-
 
     /**
      * @return html for a TR that represents the given commit
      */
     function renderTRCommitLogLine(commitData) {
-         function lineOr70chr(value) { 
-              var l = value.indexOf('\n');
-              return value.trim().substr(0, (l > 0) ? Math.min(l,70) : 70);
-         };
+        function lineOr70chr(value) {
+            var l = value.indexOf('\n');
+            return value.trim().substr(0, (l > 0) ? Math.min(l,70) : 70);
+        }
         var data = {
+            sha: commitData.sha,
             author : commitData.author.name,
             date : commitData.author.date.toDateString(),
             time : commitData.author.date.getHours()+":"+commitData.author.date.getMinutes(),
             mesg : lineOr70chr(commitData.message)
-        }
+        };
         var trTempl = '<tr id="{{sha}}"> \
             <td class="commitDate">{{date}}</td> \
             <td class="commitTime">{{time}}</td> \
@@ -86,14 +87,9 @@ define(['./git-cmds', 'js/hairlip', 'js/paged-table'], function(git, hairlip, pa
         return hairlip(data, trTempl);
     }
     
-    function showLog(commitList) {
-         commitListShas = commitList;
-         pagedTable.init(10, commitList, renderTRCommitLogLine, document.querySelector("#commitList"));
-    }
-    
     function askForRemote() {
-        function progress (a) { console.log("clone progress", a); };
-        function completed (a) { console.log("clone COMPLETED!", a); };
+        function progress (a) { console.log("clone progress", a); }
+        function completed (a) { console.log("clone COMPLETED!", a); }
         var repoDir;
         
         $("#getDirButton").hide();
@@ -115,22 +111,32 @@ define(['./git-cmds', 'js/hairlip', 'js/paged-table'], function(git, hairlip, pa
             console.log('CLONE!',  $("#remoteUrl"));
             git.cloneRemote( $("#remoteUrl").val(), repoDir, progress, completed);
         });
-    }    
+    }
     
     function getRepoNameFromUrl(url) {
         var i1 = url.lastIndexOf(".git");
         var i2 = url.lastIndexOf("/");
         if (i1 > 0 && i2 > 0 && i1 > i2) {
-            console.log(i1)
+            console.log(i1);
             return url.substring(i2+1, i1);
         } else {
             return url.substring(i2+1, url.length);
         }
     }
     
+    function showLog(commitList) {
+        var config = {
+            pageSize: FULL_NUM_COMMIT_LINES,
+            data: commitList,
+            trRenderer: renderTRCommitLogLine,
+            tableElem:  document.querySelector("#commitList")
+        };
+        pagedTable.init(config, updateStatusBar);
+    }
+    
     function chooseFSForLocalRepo() {
         git.getFS(function() {
-            var MAX_COMMIT_HIST = 25;
+            var MAX_COMMIT_HIST = 250;
             //show commit log...
             git.getLog(MAX_COMMIT_HIST, function(x) {
                 $("#remoteOpen").hide(); //hide clone-repo ui in case it was open
@@ -140,10 +146,8 @@ define(['./git-cmds', 'js/hairlip', 'js/paged-table'], function(git, hairlip, pa
     }
     
     return {
-        clearSel: clearSel,
         moveSelLine: moveSelLine,
         selectCurrentLine: selectCurrentLine,
-        showLog: showLog,
         askForRemote: askForRemote,
         chooseFSForLocalRepo: chooseFSForLocalRepo
     };

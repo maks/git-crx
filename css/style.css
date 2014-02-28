@@ -64,7 +64,7 @@ footer {
 }
 
 #commitListContainer {
-  overflow-y: scroll;
+  overflow-y: none;
 }
 
 #commitList {  
