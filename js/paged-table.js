@@ -27,11 +27,21 @@ define(function() {
             throw new Error(errMesg) ;
         }
         conf = config;
+        //make sure only Ints
+        config.pageSize = Math.floor(conf.pageSize);
         fillTable(0);
         callback();
     }
     
-    function fillTable(startIdx, startAtBottom) {
+    function resize(pageSize) {
+        var oldPageSize = conf.pageSize;
+        conf.pageSize = Math.floor(pageSize);
+        var nuStartIdx = Math.floor(currentIndex / pageSize);
+        console.log("resize offset:",nuStartIdx);
+        fillTable(nuStartIdx, currentIndex);
+    }
+    
+    function fillTable(startIdx, startAt) {
         var jqTable = $(conf.tableElem);
         jqTable.empty();
         
@@ -39,10 +49,10 @@ define(function() {
             jqTable.append(conf.trRenderer(conf.data[currentIndex]));
         }
         
-        if (!startAtBottom) {
-          currentIndex = startIdx; //reset to top of curr page
+        if (!startAt) {
+            currentIndex = startIdx; //reset to top of curr page
         } else {
-            currentIndex--; //back up one to be on last line
+            currentIndex = startAt;
         }
         currentLine = jqTable.find("tr").eq(currentIndex-startIdx);
         currentLine.addClass("selected");
@@ -76,7 +86,7 @@ define(function() {
     
     function prevPage() {
         if (currentIndex > 0) {
-            fillTable(currentIndex-conf.pageSize, true);
+            fillTable(currentIndex-conf.pageSize, currentIndex - 1);
         }
     }
     
@@ -118,6 +128,7 @@ define(function() {
         last: last,
         getCurrentTR: getCurrentTR,
         getCurrentIndex: getCurrentIndex,
-        getData: getData
+        getData: getData,
+        resize: resize
     };
 });

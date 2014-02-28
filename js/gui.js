@@ -11,12 +11,19 @@ define(['./git-cmds', 'js/hairlip', 'js/paged-table'], function(git, hairlip, pa
     };
     
     var myCodeMirror;
-    var FULL_NUM_COMMIT_LINES = 20;
+    var NUM_COMMIT_LINES = 10;
+    var currentContext = [];
     
     function selectCurrentLine() {
       var currentLine = pagedTable.getCurrentTR();
       console.log("SEL", currentLine);
-      initCM();
+      if (!initCM()) {
+          $(".CodeMirror").show();
+          myCodeMirror.refresh();
+      }
+      if (currentContext[0] != "showCommit") {
+          currentContext.push("showCommit");
+      }
       git.renderCommit(currentLine.attr("id"), git.getCurrentRepo(), function(commitTxt) {
         console.log("show commit txt in CM...");
         myCodeMirror.getDoc().setValue(commitTxt);
@@ -29,6 +36,10 @@ define(['./git-cmds', 'js/hairlip', 'js/paged-table'], function(git, hairlip, pa
         myCodeMirror = CodeMirror(document.querySelector("#mainContainer"), cmConfig);
         $(".CodeMirror").height("50%");
         $("#commitListContainer").height("50%");
+        return true;
+      } else {
+          console.log("nothing to Init, CM already available");
+          return false;
       }
     }
     
@@ -88,11 +99,13 @@ define(['./git-cmds', 'js/hairlip', 'js/paged-table'], function(git, hairlip, pa
     }
     
     function askForRemote() {
-        function progress (a) { console.log("clone progress", a); }
+        function progress (a) { console.log("clone progress", a); renderStatusBar(a); }
         function completed (a) { console.log("clone COMPLETED!", a); }
         var repoDir;
+        currentContext.push("askForRemote");
+        $("#cancelCloneButton").click(cancelCurrentContext);
         
-        $("#getDirButton").hide();
+        $("#helpTextMenu").hide(); //hide away help and show clone ui instead
         $("#remoteOpen").show();
         $("#localParentDir").click(function() {
             git.getFS(function(outDir) {
@@ -109,6 +122,7 @@ define(['./git-cmds', 'js/hairlip', 'js/paged-table'], function(git, hairlip, pa
         });
         $("#cloneButton").click(function() {
             console.log('CLONE!',  $("#remoteUrl"));
+            currentContext.pop();
             git.cloneRemote( $("#remoteUrl").val(), repoDir, progress, completed);
         });
     }
@@ -126,7 +140,7 @@ define(['./git-cmds', 'js/hairlip', 'js/paged-table'], function(git, hairlip, pa
     
     function showLog(commitList) {
         var config = {
-            pageSize: FULL_NUM_COMMIT_LINES,
+            pageSize: NUM_COMMIT_LINES,
             data: commitList,
             trRenderer: renderTRCommitLogLine,
             tableElem:  document.querySelector("#commitList")
@@ -145,10 +159,27 @@ define(['./git-cmds', 'js/hairlip', 'js/paged-table'], function(git, hairlip, pa
         });
     }
     
+    function cancelCurrentContext() {
+        console.log("CXT CANCEL", currentContext);
+        switch(currentContext.pop()) {
+            case "askForRemote":
+                $("#remoteOpen").hide();
+                $("#helpTextMenu").show();
+            break;
+            case "showCommit":
+                $(".CodeMirror").hide();
+            break;
+            default:
+                console.error("invalid context cancel");
+            return;
+        }
+    }
+    
     return {
         moveSelLine: moveSelLine,
         selectCurrentLine: selectCurrentLine,
         askForRemote: askForRemote,
-        chooseFSForLocalRepo: chooseFSForLocalRepo
+        chooseFSForLocalRepo: chooseFSForLocalRepo,
+        cancelCurrentContext: cancelCurrentContext
     };
 });
