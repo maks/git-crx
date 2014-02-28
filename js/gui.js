@@ -6,8 +6,8 @@ define(['./git-cmds', 'js/hairlip', 'js/paged-table'], function(git, hairlip, pa
     var cmConfig = {
       mode: "text/x-diff",
       theme: "midnight",
-      styleActiveLine: true,
-      readonly: true
+      readOnly: true,
+      styleActiveLine: true
     };
     
     var myCodeMirror;
@@ -99,8 +99,14 @@ define(['./git-cmds', 'js/hairlip', 'js/paged-table'], function(git, hairlip, pa
     }
     
     function askForRemote() {
-        function progress (a) { console.log("clone progress", a); renderStatusBar(a); }
-        function completed (a) { console.log("clone COMPLETED!", a); }
+        function progress (a) { 
+            console.log("clone progress", a);
+            var str = a.msg + "["+Math.floor(a.pct)+"%]";
+            renderStatusBar(str); 
+         }
+        function completed (a) { 
+            console.log("clone COMPLETED!"+a); 
+        }
         var repoDir;
         currentContext.push("askForRemote");
         $("#cancelCloneButton").click(cancelCurrentContext);

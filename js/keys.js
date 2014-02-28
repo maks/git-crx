@@ -5,10 +5,9 @@ define(['./gui'], function(ui) {
         Mousetrap.bind(['home'], function(x) { ui.moveSelLine("home"); });
         Mousetrap.bind(['end'], function(x) { ui.moveSelLine("end"); });
         Mousetrap.bind(['enter'], function(x) { ui.selectCurrentLine(); });
-        Mousetrap.bind(['q'], function(x) { $(".CodeMirror").remove(); });
         Mousetrap.bind(['mod+n'], ui.askForRemote );
         Mousetrap.bind(['mod+o'], ui.chooseFSForLocalRepo );
-        Mousetrap.bind(['esc'], ui.cancelCurrentContext );
+        Mousetrap.bind(['esc', 'q'], ui.cancelCurrentContext );
     }
     return  {
         init: initKeyBindings

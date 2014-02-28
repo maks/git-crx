@@ -14,7 +14,7 @@
     <div id="helpTextMenu"><strong>ctrl-o :</strong> open local repo, <strong>ctrl-n :</strong> clone remote, <strong>ctrl-h :</strong> show help</div>
     <formset id="remoteOpen">
       <input type="text" id="remoteUrl" value="https://github.com/???/????" />
-      <input type="button" id="localParentDir" value="Choose a Local Git Repo" />
+      <input type="button" id="localParentDir" value="Choose a Dir for Repo" />
       <input type="button" id="cloneButton" value="Clone!" />
       <input type="button" id="cancelCloneButton" value="Cancel" />
     </formset>
@@ -34,6 +34,7 @@
     <script src="lib/mousetrap.min.js"></script>
     <script src="lib/codemirror.js"></script>
     <script src="lib/mode/diff/diff.js"></script>
+    <script src="lib/addon/selection/active-line.js"></script>
     <script data-main="../app.js" src="lib/require.js"></script>
   </body>
 </html>

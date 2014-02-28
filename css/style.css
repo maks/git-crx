@@ -127,3 +127,6 @@ tr.selected td {
     color: #D1EDFF;
     padding-bottom: 50px;
 }
+
+/* For active line highlighting in CM */
+.CodeMirror-activeline-background {background: green;}
