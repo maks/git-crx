@@ -1,7 +1,8 @@
 define(function() {
  //implements a paginated html table "control"
 
-    var currentLine;
+    var currentLine; //current selected TR of table
+    var currentIndex; //index into data matching currentLine
     var data;
     var trRendr;
     var pgSize;
@@ -19,61 +20,74 @@ define(function() {
         pgSize = tablePageSize;
         domTable = tableElem;
         
-        var jqTable = $(tableElem);
-        jqTable.empty();
-        
-        for (var i=0; i < pgSize; i++) {
-            jqTable.append(trRendr(data[i]));
-        }
-        
-        currentLine = jqTable.find("tr").eq(0);
-        currentLine.addClass("selected");
-        console.log("curr line", currentLine);
+        fillTable(0);
     }
     
+    function fillTable(startIdx, startAtBottom) {
+        var jqTable = $(domTable);
+        jqTable.empty();
+        
+        for (currentIndex = startIdx; (currentIndex < (startIdx+pgSize)) && (currentIndex < data.length); currentIndex++) {
+            jqTable.append(trRendr(data[currentIndex]));
+            console.log(currentIndex);
+        }
+        
+        if (!startAtBottom) {
+          currentIndex = startIdx; //reset to top of curr page
+        } else {
+            currentIndex--; //back up one to be on last line
+        }
+        currentLine = jqTable.find("tr").eq(currentIndex-startIdx);
+        currentLine.addClass("selected");
+    }
     
     function next() {
-        console.log("PGT down")
         var nuLine = currentLine.next();
         if (nuLine[0]) {
             currentLine.removeClass("selected");
             nuLine.addClass("selected");
             currentLine = nuLine;
+            currentIndex++;
         } else {
             //at bottom, need to page down if possible
-            pageDown()
+            nextPage()
         }
     }
     
     function prev() {
-        console.log("PGT up")
         var nuLine = currentLine.prev();
         if (nuLine[0]) {
             currentLine.removeClass("selected");
             nuLine.addClass("selected");
             currentLine = nuLine;
+            currentIndex--;
         } else {
             //at top, need to page up if possible
-            pageUp();
+            prevPage();
         }
     }
     
-    function pageUp() {
-        console.error("pageup TODO");
+    function prevPage() {
+        if (currentIndex > 0) {
+            fillTable(currentIndex-pgSize, true);
+        }
     }
     
-    function pageDown() {
-        console.error("pagedown TODO");
+    function nextPage() {
+        if (currentIndex < data.length-1) {
+            fillTable(currentIndex+1);
+        }
     }
     
      
     function first() {
-        
+        fillTable(0);
     }
     
      
     function last() {
-        
+        var topOfLastPage = Math.floor(data.length / pgSize) * pgSize;
+        fillTable(topOfLastPage);
     }
     
      
