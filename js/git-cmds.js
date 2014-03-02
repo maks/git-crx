@@ -106,10 +106,12 @@ define(['require', 'objectstore/file_repo', 'commands/diff', 'git-html5/commands
             fileStore.init( function() {
               console.log("cloning...", options.dir, typeof clone);
                 clone(options, function(a) {
-                  console.log("clone has completed", a);
+                  console.log("clone has completed");
                   completedCB(a);
-                }, fsErrorHandler);
-            });         
+                }, function(e) {
+                    console.error("error Cloning!"+e);
+                });
+            });
     }
     
     function getCurrentRepo() {

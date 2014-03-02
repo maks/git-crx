@@ -100,7 +100,7 @@ define(['./git-cmds', 'js/hairlip', 'js/paged-table'], function(git, hairlip, pa
     
     function askForRemote() {
         function progress (a) { 
-            console.log("clone progress", a);
+            //console.log("clone progress", a);
             var str = a.msg + "["+Math.floor(a.pct)+"%]";
             renderStatusBar(str); 
          }
