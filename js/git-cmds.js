@@ -4,6 +4,10 @@ define(['require', 'objectstore/file_repo', 'commands/diff', 'git-html5/commands
     var FS;
     var currentRepo;
 
+    function setOutDir(dir) {
+        outDir = dir;
+    }
+
     function getFS(callback) {
       chrome.fileSystem.chooseEntry({ type : "openDirectory" }, function(entry) {
         console.debug("got FS Dir:", entry);
@@ -123,6 +127,7 @@ define(['require', 'objectstore/file_repo', 'commands/diff', 'git-html5/commands
         renderCommit: renderCommit,
         getFS: getFS,
         getCurrentRepo: getCurrentRepo,
-        getLog: getLog
+        getLog: getLog,
+        setOutDir: setOutDir
     };
 });

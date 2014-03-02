@@ -99,15 +99,21 @@ define(['./git-cmds', 'js/hairlip', 'js/paged-table'], function(git, hairlip, pa
     }
     
     function askForRemote() {
+        var repoDir;
+        
         function progress (a) { 
             //console.log("clone progress", a);
             var str = a.msg + "["+Math.floor(a.pct)+"%]";
             renderStatusBar(str); 
          }
         function completed (a) { 
-            console.log("clone COMPLETED!"+a); 
+            console.log("clone COMPLETED!"+a);
+            git.setOutDir(repoDir);
+            renderStatusBar("Clone Completed!");
+            $("#remoteOpen").hide();
+            getAndThenShowLog();
         }
-        var repoDir;
+        
         currentContext.push("askForRemote");
         $("#cancelCloneButton").click(cancelCurrentContext);
         
@@ -155,13 +161,15 @@ define(['./git-cmds', 'js/hairlip', 'js/paged-table'], function(git, hairlip, pa
     }
     
     function chooseFSForLocalRepo() {
-        git.getFS(function() {
-            var MAX_COMMIT_HIST = 250;
-            //show commit log...
-            git.getLog(MAX_COMMIT_HIST, function(x) {
-                $("#remoteOpen").hide(); //hide clone-repo ui in case it was open
-                showLog(x);
-            });
+        git.getFS(getAndThenShowLog);
+    }
+    
+    function getAndThenShowLog() {
+        var MAX_COMMIT_HIST = 250;
+        //show commit log...
+        git.getLog(MAX_COMMIT_HIST, function(x) {
+            $("#remoteOpen").hide(); //hide clone-repo ui in case it was open
+            showLog(x);
         });
     }
     
