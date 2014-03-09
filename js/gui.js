@@ -13,6 +13,7 @@ define(['./git-cmds', 'js/hairlip', 'js/paged-table'], function(git, hairlip, pa
     var myCodeMirror;
     var NUM_COMMIT_LINES = 10;
     var currentContext = [];
+    var MAX_COMMIT_HIST = 250;
     
     function selectCurrentLine() {
       var currentLine = pagedTable.getCurrentTR();
@@ -47,7 +48,7 @@ define(['./git-cmds', 'js/hairlip', 'js/paged-table'], function(git, hairlip, pa
       var currIdx = pagedTable.getCurrentIndex();
       var size = pagedTable.getData().length;
       var currTr = pagedTable.getCurrentTR();
-      renderStatusBar([currTr.attr("id"), "-", "commit", currIdx + 1 , "of", size].join(" ")); //+1 because users like to see 1 indexed not zero
+      renderStatusBar([currTr.attr("id"), "-", "commit", currIdx + 1 , "of", size, "[MAX:", MAX_COMMIT_HIST].join(" ")); //+1 because users like to see 1 indexed not zero
     }
     
     function renderStatusBar(str) {
@@ -165,7 +166,6 @@ define(['./git-cmds', 'js/hairlip', 'js/paged-table'], function(git, hairlip, pa
     }
     
     function getAndThenShowLog() {
-        var MAX_COMMIT_HIST = 250;
         //show commit log...
         git.getLog(MAX_COMMIT_HIST, function(x) {
             $("#remoteOpen").hide(); //hide clone-repo ui in case it was open
