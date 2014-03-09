@@ -1,0 +1,2 @@
+#!/bin/sh
+convert -resize 1280x800 $1 $2
