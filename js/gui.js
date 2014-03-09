@@ -27,10 +27,12 @@ define(['./git-cmds', 'js/hairlip', 'js/paged-table'], function(git, hairlip, pa
       }
       git.renderCommit(currentLine.attr("id"), git.getCurrentRepo(), function(commitTxt) {
         console.log("show commit txt in CM...");
-        myCodeMirror.getDoc().setValue(commitTxt);
+        var commit = pagedTable.getData()[pagedTable.getCurrentIndex()];
+        var header = commitHeader(commit);
+        myCodeMirror.getDoc().setValue(header+commitTxt);
       });
     }
-
+    
     function initCM() {
       if (!myCodeMirror) {
         console.log("CM init");
@@ -98,6 +100,31 @@ define(['./git-cmds', 'js/hairlip', 'js/paged-table'], function(git, hairlip, pa
         </tr>';
         return hairlip(data, trTempl);
     }
+    
+    
+    function commitHeader(commitData) {
+        var data = {
+            sha: commitData.sha,
+            author : commitData.author.name,
+            authorEmail : commitData.author.email,
+            authorDate : commitData.author.date.toDateString(),
+            committer : commitData.committer.name,
+            committerEmail : commitData.committer.email,
+            committerrDate : commitData.committer.date.toDateString(),            
+            mesg : commitData.message
+        };
+        console.log("show commit", commitData)
+        var headerTempl = 
+            'commit {{sha}}\n'+
+            //'Refs: TODO\n'+
+            'Author: {{author}} {{authorEmail}}\n'+
+            'AuthorDate: {{authorDate}}\n'+
+            'Commit: {{committer}} {{committerEmail}}\n'+
+            'CommitDate: {{authorDate}}\n\n'+
+            '{{mesg}}\n\n';
+        return hairlip(data, headerTempl);
+    }
+
     
     function askForRemote() {
         var repoDir;
