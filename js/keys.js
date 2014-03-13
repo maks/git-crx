@@ -1,7 +1,7 @@
 define(['./gui'], function(ui) {
     function initKeyBindings() {
-        Mousetrap.bind(['j', 'up'], function(x) { ui.moveSelLine("up"); });
-        Mousetrap.bind(['k', 'down'], function(x) { ui.moveSelLine("down"); });
+        Mousetrap.bind(['j', 'down'], function(x) { ui.moveSelLine("down"); });
+        Mousetrap.bind(['k', 'up'], function(x) { ui.moveSelLine("up"); });
         Mousetrap.bind(['home'], function(x) { ui.moveSelLine("home"); });
         Mousetrap.bind(['end'], function(x) { ui.moveSelLine("end"); });
         Mousetrap.bind(['enter'], function(x) { ui.selectCurrentLine(); });

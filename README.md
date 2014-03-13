@@ -21,8 +21,8 @@ Do **NOT** use this with any repositories you would cry about if they got delete
 I've tried to key the key bindings similiar to [Tig](http://jonas.nitro.dk/tig/manual.html) though much of the functionality of
 TIg is missing here and some features of sj-tig have no equivalent in Tig.
 
-j, up - move up through commit list
-k, down - move down through commit list
+j, down - move up through commit list
+k, up - move down through commit list
 HOME - Jump to first commit
 END - Jump to last line
 Enter - open currently selected commit
