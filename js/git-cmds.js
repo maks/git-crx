@@ -96,7 +96,7 @@ define(['require', 'objectstore/file_repo', 'commands/diff', 'git-html5/commands
         });
     }
 
-    function cloneRemote(remoteUrl, localDirEntry, progressCB, completedCB) {
+    function cloneRemote(remoteUrl, localDirEntry, progressCB, completedCB, errorCB) {
           console.log("clone into dir", localDirEntry);          
             var fileStore = new FileObjectStore(localDirEntry);
             var options = {
@@ -113,7 +113,8 @@ define(['require', 'objectstore/file_repo', 'commands/diff', 'git-html5/commands
                   console.log("clone has completed");
                   completedCB(a);
                 }, function(e) {
-                    console.error("error Cloning!"+e);
+                    console.error("error Cloning!", e);
+                    errorCB(e.msg);
                 });
             });
     }

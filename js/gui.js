@@ -184,7 +184,9 @@ define(['./git-cmds', 'js/hairlip', 'js/paged-table'], function(git, hairlip, pa
             console.log('CLONE!',  $("#remoteUrl"));
             currentContext.pop();
             currentContext.push(currentContext.CONTEXT_CLONING);
-            git.cloneRemote( $("#remoteUrl").val(), repoDir, progress, completed);
+            git.cloneRemote( $("#remoteUrl").val(), repoDir, progress, completed, function(err) {
+                showError("Error Cloning: "+err);
+            });
         });
     }
     
