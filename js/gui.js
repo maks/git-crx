@@ -7,7 +7,9 @@ define(['./git-cmds', 'js/hairlip', 'js/paged-table'], function(git, hairlip, pa
       mode: "text/x-diff",
       theme: "midnight",
       readOnly: true,
-      styleActiveLine: true
+      styleActiveLine: true,
+      //Tab disabled to allow normal browser tabbing to occur b/w CM and commit list 
+      extraKeys: { Tab: false }
     };
     
     var myCodeMirror;

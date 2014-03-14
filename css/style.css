@@ -81,6 +81,11 @@ footer {
   border: black;
 }
 
+#commitList:focus {
+/* disable the orange border chrome puts around elements which have keybd focus ! */
+  outline: none;
+}
+
 #commitList td {
   padding: 1px;  
   padding-right: 1em;
