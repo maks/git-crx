@@ -12,8 +12,12 @@ define(['./git-cmds', 'js/hairlip', 'js/paged-table'], function(git, hairlip, pa
     
     var myCodeMirror;
     var NUM_COMMIT_LINES = 10;
-    var currentContext = [];
     var MAX_COMMIT_HIST = 250;
+    var currentContext = [];
+    
+    currentContext.CONTEXT_CLONING = "cloning";
+    currentContext.CONTEXT_ASK_REMOTE = "askForRemote";
+    currentContext.CONTEXT_SHOW_COMMIT = "showCommit";
     
     function selectCurrentLine() {
       var currentLine = pagedTable.getCurrentTR();
@@ -22,8 +26,8 @@ define(['./git-cmds', 'js/hairlip', 'js/paged-table'], function(git, hairlip, pa
           $(".CodeMirror").show();
           myCodeMirror.refresh();
       }
-      if (currentContext[0] != "showCommit") {
-          currentContext.push("showCommit");
+      if (currentContext[0] != currentContext.CONTEXT_SHOW_COMMIT) {
+          currentContext.push(currentContext.CONTEXT_SHOW_COMMIT);
       }
       git.renderCommit(currentLine.attr("id"), git.getCurrentRepo(), function(commitTxt) {
         console.log("show commit txt in CM...");
@@ -46,7 +50,7 @@ define(['./git-cmds', 'js/hairlip', 'js/paged-table'], function(git, hairlip, pa
       }
     }
     
-   function updateStatusBar() {
+   function updateCommitInStatusBar() {
       var currIdx = pagedTable.getCurrentIndex();
       var size = pagedTable.getData().length;
       var currTr = pagedTable.getCurrentTR();
@@ -54,10 +58,14 @@ define(['./git-cmds', 'js/hairlip', 'js/paged-table'], function(git, hairlip, pa
     }
     
     function renderStatusBar(str) {
-      $("footer").text(str);
+      $("#statusbar").text(str);
     }
 
     function moveSelLine(direction) {
+      if (currentContext[0] == currentContext.CONTEXT_CLONING) {
+          showInErrorView("cannot navigate - clone in progress");
+          return; //no user input while cloning
+      }
       var nuLine;
       switch (direction) {
         case "up":
@@ -73,7 +81,7 @@ define(['./git-cmds', 'js/hairlip', 'js/paged-table'], function(git, hairlip, pa
            pagedTable.last();
         break;
       }
-      updateStatusBar();
+      updateCommitInStatusBar();
     }
 
     /**
@@ -136,13 +144,20 @@ define(['./git-cmds', 'js/hairlip', 'js/paged-table'], function(git, hairlip, pa
          }
         function completed (a) { 
             console.log("clone COMPLETED!"+a);
+            var c = currentContext.pop();
+            if (c != currentContext.CONTEXT_CLONING) {
+                console.error("cloning was NOT the current context:"+c);
+                if (c) { //if its a valid state, put it back
+                    currentContext.push(c);    
+                }
+            }
             git.setOutDir(repoDir);
             renderStatusBar("Clone Completed!");
             $("#remoteOpen").hide();
             getAndThenShowLog();
         }
         
-        currentContext.push("askForRemote");
+        currentContext.push(currentContext.CONTEXT_SHOW_COMMIT);
         $("#cancelCloneButton").click(cancelCurrentContext);
         
         $("#helpTextMenu").hide(); //hide away help and show clone ui instead
@@ -163,6 +178,7 @@ define(['./git-cmds', 'js/hairlip', 'js/paged-table'], function(git, hairlip, pa
         $("#cloneButton").click(function() {
             console.log('CLONE!',  $("#remoteUrl"));
             currentContext.pop();
+            currentContext.push(currentContext.CONTEXT_CLONING);
             git.cloneRemote( $("#remoteUrl").val(), repoDir, progress, completed);
         });
     }
@@ -185,10 +201,13 @@ define(['./git-cmds', 'js/hairlip', 'js/paged-table'], function(git, hairlip, pa
             trRenderer: renderTRCommitLogLine,
             tableElem:  document.querySelector("#commitList")
         };
-        pagedTable.init(config, updateStatusBar);
+        pagedTable.init(config, updateCommitInStatusBar);
     }
     
     function chooseFSForLocalRepo() {
+        if (currentContext[0] == currentContext.CONTEXT_CLONING) {
+            showError("cannot open repo while clone in progress");
+        }
         git.getFS(getAndThenShowLog);
     }
     
@@ -203,17 +222,26 @@ define(['./git-cmds', 'js/hairlip', 'js/paged-table'], function(git, hairlip, pa
     function cancelCurrentContext() {
         console.log("CXT CANCEL", currentContext);
         switch(currentContext.pop()) {
-            case "askForRemote":
+            case currentContext.CONTEXT_ASK_REMOTE:
                 $("#remoteOpen").hide();
                 $("#helpTextMenu").show();
             break;
-            case "showCommit":
+            case currentContext.CONTEXT_SHOW_COMMIT:
                 $(".CodeMirror").hide();
+            break;
+            case currentContext.CONTEXT_CLONING:
+                console.log("cancelling clone-in-progress - TODO");
+                //TODO
             break;
             default:
                 console.error("invalid context cancel");
             return;
         }
+    }
+    
+    function showError(str) {
+        console.log("show user err:"+str);
+        $("#errorbar").text(str);
     }
     
     return {

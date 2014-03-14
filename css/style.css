@@ -20,9 +20,19 @@ header,footer {
 
 footer {
   position: fixed;
+  height: 2.5em;
   bottom: 0px;
   background: black;
   width: 100%;
+}
+
+#statusbar {
+  bottom: 2px;
+}
+
+#errorbar {
+  bottom: 2px;
+  color: red;
 }
 
 #mainContainer {
