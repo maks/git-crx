@@ -170,6 +170,9 @@ define(['./git-cmds', 'js/hairlip', 'js/paged-table'], function(git, hairlip, pa
                 outDir.getDirectory(dirName, {create:true}, function(nuDir){
                     chrome.fileSystem.getWritableEntry(nuDir, function(writableDir) {
                         repoDir = writableDir;
+                        chrome.fileSystem.getDisplayPath(writableDir, function (dispPath) {
+                            $("#localParentDir").prop("value",dispPath);
+                        });
                         console.log("set repoDir", repoDir);
                     });
                 });
