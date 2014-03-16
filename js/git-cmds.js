@@ -32,15 +32,24 @@ define(['require', 'objectstore/file_repo', 'commands/diff', 'git-html5/commands
         currentRepo = store;
         store.init(function() {
             console.log("loaded git obj store", store);
-            store.getHeadSha(function(headSha) {
+                store.getHeadSha(function(headSha) {
                 console.log("got HEAD as:", headSha);
                 console.log("limit to:"+limit);
                 store._getCommitGraph([headSha], limit, function(commitList){
-                //renderAsTextCommitLog(commitList, function(x) { console.log(x) });
                 callback(commitList);
                 });
             });
         });
+    }
+    
+    function getAllBranches(callback, errorCB) {
+        if (!currentRepo) {
+            errorCB("No local repo selected");
+        } else {
+            currentRepo.getAllHeads(function(heads) {
+                callback(heads);
+            })
+        }
     }
     
     function renderAsTextCommitLog(commitList, callback) {
@@ -129,6 +138,7 @@ define(['require', 'objectstore/file_repo', 'commands/diff', 'git-html5/commands
         getFS: getFS,
         getCurrentRepo: getCurrentRepo,
         getLog: getLog,
-        setOutDir: setOutDir
+        setOutDir: setOutDir,
+        getAllBranches: getAllBranches
     };
 });

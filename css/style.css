@@ -81,7 +81,11 @@ footer {
   border: black;
 }
 
-#commitList:focus {
+#branchList {
+  display: none;
+}
+
+#commitList:focus, #branchList:focus {
 /* disable the orange border chrome puts around elements which have keybd focus ! */
   outline: none;
 }
