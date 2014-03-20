@@ -77,8 +77,8 @@ footer {
   overflow-y: none;
 }
 
-#commitList {  
-  border: black;
+#commitList {
+  display: none;
 }
 
 #branchList {
@@ -94,6 +94,10 @@ footer {
   padding: 1px;  
   padding-right: 1em;
   align-content: stretch;
+}
+
+#commitList, #branchList th {
+  text-align: left;
 }
 
 .commitDate {

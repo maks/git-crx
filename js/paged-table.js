@@ -15,7 +15,7 @@ define(function() {
             this.currentIndex = 0; //index into data matching currentLine
             this.conf = config;
             this.fillTable = function(startIdx, startAt) {
-                var jqTable = $(this.conf.tableElem);
+                var jqTable = $(this.conf.tableElem).children("tbody");
                 jqTable.empty();
                 
                 for (this.currentIndex = startIdx; (this.currentIndex < (startIdx+this.conf.pageSize)) && (this.currentIndex < this.conf.data.length); this.currentIndex++) {
