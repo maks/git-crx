@@ -22,21 +22,25 @@ define(['./git-cmds', 'js/paged-table', './git-data-helper'], function(git, Page
     currentContext.CONTEXT_SHOW_COMMIT = "showCommit";
     
     function selectCurrentLine() {
-      var currentLine = currentListTable.getCurrentTR();
-      console.log("SEL", currentLine);
-      if (!initCM()) {
-          $(".CodeMirror").show();
-          myCodeMirror.refresh();
+      if (currentListTable == branchListTable) {
+          console.error("TODO: show specific branch commitlog")
+      } else if (currentListTable == commitListTable) {
+          var currentLine = currentListTable.getCurrentTR();
+          console.log("SEL", currentLine);
+          if (!initCM()) {
+              $(".CodeMirror").show();
+              myCodeMirror.refresh();
+          }
+          if (currentContext[0] != currentContext.CONTEXT_SHOW_COMMIT) {
+              currentContext.push(currentContext.CONTEXT_SHOW_COMMIT);
+          }
+          git.renderCommit(currentLine.attr("id"), git.getCurrentRepo(), function(commitTxt) {
+            console.log("show commit txt in CM...");
+            var commit = currentListTable.getData()[currentListTable.getCurrentIndex()];
+            var header = gitDataHelper.commitHeader(commit);
+            myCodeMirror.getDoc().setValue(header+commitTxt);
+          });
       }
-      if (currentContext[0] != currentContext.CONTEXT_SHOW_COMMIT) {
-          currentContext.push(currentContext.CONTEXT_SHOW_COMMIT);
-      }
-      git.renderCommit(currentLine.attr("id"), git.getCurrentRepo(), function(commitTxt) {
-        console.log("show commit txt in CM...");
-        var commit = currentListTable.getData()[currentListTable.getCurrentIndex()];
-        var header = gitDataHelper.commitHeader(commit);
-        myCodeMirror.getDoc().setValue(header+commitTxt);
-      });
     }
     
     function initCM() {
@@ -164,21 +168,34 @@ define(['./git-cmds', 'js/paged-table', './git-data-helper'], function(git, Page
     function showBranches() {        
         git.getAllBranches(function(heads) {
             console.log("HEADS", heads);
+            var headsData = heads.concat();
             var config = {
                 pageSize: NUM_COMMIT_LINES,
-                data: heads,
+                data: headsData,
                 trRenderer: gitDataHelper.renderTRBranchLine,
                 tableElem:  document.querySelector("#branchList")
             };
-            //TODO: lookup commit SHAs for all refs returned            
+            heads.asyncEach(function(head, done, i) {
+               git.getShaForHead(head, function(sha) {
+                     headsData[i] = { "name" : headsData[i], "sha" : sha };
+                     done();
+                   }, function(err) {
+                   console.error("err getting sha for head for:"+head, err);
+                   showError("Error getting SHA for at lest 1 HEAD in branch list");
+                   done();
+               }) 
+            }, showTable);
             
-            //setup the commitList
-            branchListTable = new PagedTable(config);            
-            console.log("setup branch table")     
-            $("#commitList").hide();
-            $("#branchList").show();
-            currentListTable = branchListTable;
-            updateStatusBar();
+            function showTable() {
+                //setup the commitList
+                branchListTable = new PagedTable(config);            
+                console.log("setup branch table")     
+                $("#commitList").hide();
+                $("#branchList").show();
+                currentListTable = branchListTable;
+                updateStatusBar();    
+            }
+            
         }, function(err) {
             showError(err);
         });

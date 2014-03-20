@@ -52,13 +52,10 @@ define(['js/hairlip'], function(hairlip) {
     }
     
     function renderTRBranchLine(branchData) {
-        var data = {
-            name: branchData
-        }
-        var trTempl = '<tr id=""> \
+        var trTempl = '<tr id="{{sha}}"> \
             <td class="branchName">{{name}}</td> \
         </tr>';
-        return hairlip(data, trTempl);
+        return hairlip(branchData, trTempl);
     }
     
     function getRepoNameFromUrl(url) {

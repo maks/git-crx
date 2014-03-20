@@ -132,6 +132,11 @@ define(['require', 'objectstore/file_repo', 'commands/diff', 'git-html5/commands
         return currentRepo;
     }
     
+    function getShaForHead(headName, callback, error) {
+        var refName = "refs/heads/"+headName;
+        currentRepo._getHeadForRef(refName, callback, onerror);
+    }
+    
     return {
         cloneRemote: cloneRemote,
         renderCommit: renderCommit,
@@ -139,6 +144,7 @@ define(['require', 'objectstore/file_repo', 'commands/diff', 'git-html5/commands
         getCurrentRepo: getCurrentRepo,
         getLog: getLog,
         setOutDir: setOutDir,
-        getAllBranches: getAllBranches
+        getAllBranches: getAllBranches,
+        getShaForHead: getShaForHead
     };
 });
