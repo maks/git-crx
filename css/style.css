@@ -85,7 +85,11 @@ footer {
   display: none;
 }
 
-#commitList:focus, #branchList:focus {
+#treeview {
+  display: none;
+}
+
+#commitList:focus, #branchList:focus, #treeview:focus {
 /* disable the orange border chrome puts around elements which have keybd focus ! */
   outline: none;
 }
@@ -96,7 +100,7 @@ footer {
   align-content: stretch;
 }
 
-#commitList, #branchList th {
+#commitList, #branchList, #treeview th {
   text-align: left;
 }
 

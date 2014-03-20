@@ -1,6 +1,6 @@
 /*jshint multistr:true */
 
-define(['js/hairlip'], function(hairlip) {
+define(['js/hairlip', 'misc_utils'], function(hairlip, utils) {
     
     function commitHeader(commitData) {
         var data = {
@@ -58,6 +58,20 @@ define(['js/hairlip'], function(hairlip) {
         return hairlip(branchData, trTempl);
     }
     
+    function renderTRTreeLine(treeItem) {
+        var treeItemData = {
+            name: treeItem.name,
+            sha: treeItem.sha,
+            type: (treeItem.isBlob ? "file" : (treeItem.isSubmodule ? "module" : "dir"))
+        };
+        console.log("tree item sha", treeItem.sha.toString());
+        var trTempl = '<tr id="{{sha}}" class="{{type}}" > \
+            <td>{{type}}</td> \
+            <td>{{name}}</td> \
+        </tr>';
+        return hairlip(treeItemData, trTempl);
+    }
+    
     function getRepoNameFromUrl(url) {
         var i1 = url.lastIndexOf(".git");
         var i2 = url.lastIndexOf("/");
@@ -74,6 +88,7 @@ define(['js/hairlip'], function(hairlip) {
         commitHeader: commitHeader,
         renderTRCommitLogLine: renderTRCommitLogLine,
         renderTRBranchLine: renderTRBranchLine,
-        getRepoNameFromUrl: getRepoNameFromUrl        
+        getRepoNameFromUrl: getRepoNameFromUrl,
+        renderTRTreeLine: renderTRTreeLine
     };
 });

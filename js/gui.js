@@ -10,7 +10,7 @@ define(['./git-cmds', 'js/paged-table', './git-data-helper'], function(git, Page
       extraKeys: { Tab: false }
     };
     
-    var currentListTable, commitListTable, branchListTable; //always start with commit list view
+    var currentListTable, commitListTable, branchListTable, treeviewTable; //always start with commit list view
     var myCodeMirror;
     var NUM_COMMIT_LINES = 10;
     var MAX_COMMIT_HIST = 1500;
@@ -22,11 +22,12 @@ define(['./git-cmds', 'js/paged-table', './git-data-helper'], function(git, Page
     currentContext.CONTEXT_SHOW_COMMIT = "showCommit";
     
     function selectCurrentLine() {
+      var currentLine = currentListTable.getCurrentTR();
+      console.log("SEL", currentLine);
+          
       if (currentListTable == branchListTable) {
           console.error("TODO: show specific branch commitlog")
       } else if (currentListTable == commitListTable) {
-          var currentLine = currentListTable.getCurrentTR();
-          console.log("SEL", currentLine);
           if (!initCM()) {
               $(".CodeMirror").show();
               myCodeMirror.refresh();
@@ -40,6 +41,8 @@ define(['./git-cmds', 'js/paged-table', './git-data-helper'], function(git, Page
             var header = gitDataHelper.commitHeader(commit);
             myCodeMirror.getDoc().setValue(header+commitTxt);
           });
+      } else if (rrentListTable == treeviewTable) {
+          console.log("select tree item", currentLine)
       }
     }
     
@@ -64,7 +67,10 @@ define(['./git-cmds', 'js/paged-table', './git-data-helper'], function(git, Page
         renderStatusBar([currTr.attr("id"), "-", "commit", currIdx + 1 , "of", size].join(" ")); //+1 because users like to see 1 indexed not zero    
       } else if (currentListTable == branchListTable) {
         renderStatusBar([currTr.attr("id"), "-", "branch", currIdx + 1 , "of", size].join(" ")); //+1 because users like to see 1 indexed not zero    
-      } else {
+      } else if (currentListTable == treeviewTable) {
+        renderStatusBar([currTr.attr("id"), "-", "file", currIdx + 1 , "of", size].join(" ")); //+1 because users like to see 1 indexed not zero
+      }
+      else {
           console.error("no match", currentListTable);
       }
     }
@@ -161,6 +167,7 @@ define(['./git-cmds', 'js/paged-table', './git-data-helper'], function(git, Page
         commitListTable = new PagedTable(config);
         currentListTable = commitListTable;
         $("#branchList").hide();
+        $("#treeview").hide();
         $("#commitList").show();
         updateStatusBar();
     }
@@ -191,6 +198,7 @@ define(['./git-cmds', 'js/paged-table', './git-data-helper'], function(git, Page
                 branchListTable = new PagedTable(config);            
                 console.log("setup branch table")     
                 $("#commitList").hide();
+                $("#treeview").hide();
                 $("#branchList").show();
                 currentListTable = branchListTable;
                 updateStatusBar();    
@@ -240,6 +248,35 @@ define(['./git-cmds', 'js/paged-table', './git-data-helper'], function(git, Page
             return;
         }
     }
+    
+    function showTree() {
+      var currentLine = currentListTable.getCurrentTR();
+      console.log("SEL", currentLine);
+      if (!currentLine) {
+           console.error("no currentLine - cannot show tree!")
+           return;
+      } 
+      var selectedSHA = currentLine.attr("id");
+      var treeData = [];
+      
+      git.getTreeForCommitSha(selectedSHA, function(tree) {
+        var config = {
+            pageSize: NUM_COMMIT_LINES,
+            data: tree.entries,
+            trRenderer: gitDataHelper.renderTRTreeLine,
+            tableElem:  document.querySelector("#treeview")
+        };  
+          
+        console.log("got tree for sha:"+selectedSHA, tree);
+        treeviewTable = new PagedTable(config); 
+        console.log("setup branch table")     
+        $("#commitList").hide();
+        $("#branchList").hide();
+        $("#treeview").show();
+        currentListTable = treeviewTable;
+        updateStatusBar();    
+      });
+    }
         
     function showError(str) {
         console.log("show user err:"+str);
@@ -253,6 +290,7 @@ define(['./git-cmds', 'js/paged-table', './git-data-helper'], function(git, Page
         chooseFSForLocalRepo: chooseFSForLocalRepo,
         cancelCurrentContext: cancelCurrentContext,
         showBranches: showBranches,
-        showCommits: showCommits
+        showCommits: showCommits,
+        showTree: showTree
     };
 });
