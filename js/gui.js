@@ -26,7 +26,7 @@ define(['./git-cmds', 'js/paged-table', './git-data-helper'], function(git, Page
       console.log("SEL", currentLine);
           
       if (currentListTable == branchListTable) {
-          console.error("TODO: show specific branch commitlog")
+          console.error("TODO: show specific branch commitlog");
       } else if (currentListTable == commitListTable) {
           if (!initCM()) {
               $(".CodeMirror").show();
@@ -41,8 +41,18 @@ define(['./git-cmds', 'js/paged-table', './git-data-helper'], function(git, Page
             var header = gitDataHelper.commitHeader(commit);
             myCodeMirror.getDoc().setValue(header+commitTxt);
           });
-      } else if (rrentListTable == treeviewTable) {
-          console.log("select tree item", currentLine)
+      } else if (currentListTable == treeviewTable) {
+          if (currentLine.attr("id") === "..") {
+             popTree();
+          } else {
+              if (currentLine.hasClass("dir")) {
+                showTree(currentLine.attr("id")); //we stash the current trees sha in the th element        
+              } else if (currentLine.hasClass("module")) {
+                  showError("TODO: showing submodules in treeview");
+              } else {
+                  showError("TODO: showing files in treeview");
+              }
+          }
       }
     }
     
@@ -190,13 +200,12 @@ define(['./git-cmds', 'js/paged-table', './git-data-helper'], function(git, Page
                    console.error("err getting sha for head for:"+head, err);
                    showError("Error getting SHA for at lest 1 HEAD in branch list");
                    done();
-               }) 
+               }); 
             }, showTable);
             
             function showTable() {
                 //setup the commitList
                 branchListTable = new PagedTable(config);            
-                console.log("setup branch table")     
                 $("#commitList").hide();
                 $("#treeview").hide();
                 $("#branchList").show();
@@ -249,17 +258,20 @@ define(['./git-cmds', 'js/paged-table', './git-data-helper'], function(git, Page
         }
     }
     
-    function showTree() {
-      var currentLine = currentListTable.getCurrentTR();
-      console.log("SEL", currentLine);
-      if (!currentLine) {
-           console.error("no currentLine - cannot show tree!")
-           return;
-      } 
-      var selectedSHA = currentLine.attr("id");
+    function showTreeForCommit() {
+        var currentLine = currentListTable.getCurrentTR();
+        if (!currentLine) {
+               console.error("no currentLine - cannot show tree!");
+               return;
+        } 
+        git.getCommitForSha(currentLine.attr("id"), function(commit){
+			showTree(commit.tree);
+		});
+    }
+    
+    function showTree(treeSHA) {
       var treeData = [];
-      
-      git.getTreeForCommitSha(selectedSHA, function(tree) {
+      git.getTreeForSha(treeSHA, function(tree) {        
         var config = {
             pageSize: NUM_COMMIT_LINES,
             data: tree.entries,
@@ -267,15 +279,31 @@ define(['./git-cmds', 'js/paged-table', './git-data-helper'], function(git, Page
             tableElem:  document.querySelector("#treeview")
         };  
           
-        console.log("got tree for sha:"+selectedSHA, tree);
-        treeviewTable = new PagedTable(config); 
-        console.log("setup branch table")     
+        console.log("got tree for sha:"+treeSHA, tree);
         $("#commitList").hide();
         $("#branchList").hide();
         $("#treeview").show();
+        if (currentListTable.parent) {
+            //need to add "fake" up-to-parent tree entry to start of list
+            config.data.splice(0, 0,
+            {
+               isBlob: false,
+               isSubmodule: false,
+               name: "..",
+               sha: ".."
+            });
+        }
+        treeviewTable = new PagedTable(config);
+        treeviewTable.parent = currentListTable;
         currentListTable = treeviewTable;
         updateStatusBar();    
-      });
+      }, function(err) { console.error(err);});
+    }
+    
+    function popTree() {
+        currentListTable = treeviewTable = currentListTable.parent;
+        treeviewTable.redraw(); //redraw table contents
+        updateStatusBar();
     }
         
     function showError(str) {
@@ -291,6 +319,6 @@ define(['./git-cmds', 'js/paged-table', './git-data-helper'], function(git, Page
         cancelCurrentContext: cancelCurrentContext,
         showBranches: showBranches,
         showCommits: showCommits,
-        showTree: showTree
+        showTreeForCommit: showTreeForCommit
     };
 });

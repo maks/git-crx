@@ -141,9 +141,8 @@ define(['require', 'objectstore/file_repo', 'commands/diff', 'git-html5/commands
         currentRepo._retrieveObject(sha, "Tree", callback, error);
     }
     
-    
-    function getTreeForCommitSha(sha, callback) {
-        currentRepo._getTreeFromCommitSha(sha, callback);
+    function getCommitForSha(sha, callback, error) {
+        currentRepo._retrieveObject(sha, 'Commit', callback, error);
     }
     
     return {
@@ -156,6 +155,6 @@ define(['require', 'objectstore/file_repo', 'commands/diff', 'git-html5/commands
         getAllBranches: getAllBranches,
         getShaForHead: getShaForHead,
         getTreeForSha: getTreeForSha,
-        getTreeForCommitSha: getTreeForCommitSha,
+        getCommitForSha: getCommitForSha
     };
 });

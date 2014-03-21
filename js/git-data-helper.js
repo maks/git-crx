@@ -1,6 +1,6 @@
 /*jshint multistr:true */
 
-define(['js/hairlip', 'misc_utils'], function(hairlip, utils) {
+define(['js/hairlip', 'utils/misc_utils'], function(hairlip, miscUtils) {
     
     function commitHeader(commitData) {
         var data = {
@@ -61,10 +61,9 @@ define(['js/hairlip', 'misc_utils'], function(hairlip, utils) {
     function renderTRTreeLine(treeItem) {
         var treeItemData = {
             name: treeItem.name,
-            sha: treeItem.sha,
+            sha: miscUtils.convertBytesToSha(treeItem.sha),
             type: (treeItem.isBlob ? "file" : (treeItem.isSubmodule ? "module" : "dir"))
         };
-        console.log("tree item sha", treeItem.sha.toString());
         var trTempl = '<tr id="{{sha}}" class="{{type}}" > \
             <td>{{type}}</td> \
             <td>{{name}}</td> \

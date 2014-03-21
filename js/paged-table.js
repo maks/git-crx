@@ -117,6 +117,10 @@ define(function() {
             this.getData = function() {
                 return this.conf.data;
             };
+            
+            this.redraw = function() {
+                this.fillTable(0);
+            }
         }    
     return PagedTable;
 });
