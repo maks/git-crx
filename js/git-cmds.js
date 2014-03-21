@@ -145,6 +145,10 @@ define(['require', 'objectstore/file_repo', 'commands/diff', 'git-html5/commands
         currentRepo._retrieveObject(sha, 'Commit', callback, error);
     }
     
+    function getBlobForSha(sha, callback, error) {
+        currentRepo._retrieveObject(sha, 'Blob', callback, error);
+    }
+    
     return {
         cloneRemote: cloneRemote,
         renderCommit: renderCommit,
@@ -155,6 +159,7 @@ define(['require', 'objectstore/file_repo', 'commands/diff', 'git-html5/commands
         getAllBranches: getAllBranches,
         getShaForHead: getShaForHead,
         getTreeForSha: getTreeForSha,
-        getCommitForSha: getCommitForSha
+        getCommitForSha: getCommitForSha,
+        getBlobForSha: getBlobForSha
     };
 });

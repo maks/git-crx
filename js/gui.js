@@ -1,4 +1,4 @@
-define(['./git-cmds', 'js/paged-table', './git-data-helper'], function(git, PagedTable, gitDataHelper) {
+define(['./git-cmds', 'js/paged-table', './git-data-helper', 'utils/misc_utils'], function(git, PagedTable, gitDataHelper, miscUtils) {
 
     //setup Codemirror
     var cmConfig = {
@@ -23,6 +23,7 @@ define(['./git-cmds', 'js/paged-table', './git-data-helper'], function(git, Page
     
     function selectCurrentLine() {
       var currentLine = currentListTable.getCurrentTR();
+      var currentSha = currentLine.attr("id");
       console.log("SEL", currentLine);
           
       if (currentListTable == branchListTable) {
@@ -35,22 +36,31 @@ define(['./git-cmds', 'js/paged-table', './git-data-helper'], function(git, Page
           if (currentContext[0] != currentContext.CONTEXT_SHOW_COMMIT) {
               currentContext.push(currentContext.CONTEXT_SHOW_COMMIT);
           }
-          git.renderCommit(currentLine.attr("id"), git.getCurrentRepo(), function(commitTxt) {
+          git.renderCommit(currentSha, git.getCurrentRepo(), function(commitTxt) {
             console.log("show commit txt in CM...");
             var commit = currentListTable.getData()[currentListTable.getCurrentIndex()];
             var header = gitDataHelper.commitHeader(commit);
             myCodeMirror.getDoc().setValue(header+commitTxt);
           });
       } else if (currentListTable == treeviewTable) {
-          if (currentLine.attr("id") === "..") {
+          if (currentSha === "..") {
              popTree();
           } else {
               if (currentLine.hasClass("dir")) {
-                showTree(currentLine.attr("id")); //we stash the current trees sha in the th element        
+                showTree(currentSha);
               } else if (currentLine.hasClass("module")) {
                   showError("TODO: showing submodules in treeview");
               } else {
-                  showError("TODO: showing files in treeview");
+                  git.getBlobForSha(currentSha, function(blob) {
+                      var fileAsString = miscUtils.bytesToString(blob.data);
+                      console.log("got file str", blob);
+                      if (!initCM()) {
+                          $(".CodeMirror").show();
+                          myCodeMirror.refresh();
+                      }
+                      myCodeMirror.getDoc().setValue(fileAsString);
+                  }, function(err) { console.error(err);});
+
               }
           }
       }
