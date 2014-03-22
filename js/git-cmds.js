@@ -26,7 +26,7 @@ define(['require', 'objectstore/file_repo', 'commands/diff', 'git-html5/commands
     };
     
     
-    function getLog(limit, callback) {
+    function getLog(limit, callback, progressCB) {
         console.debug("git store:", FileObjectStore);
         var store = new FileObjectStore(outDir);
         currentRepo = store;
@@ -36,8 +36,8 @@ define(['require', 'objectstore/file_repo', 'commands/diff', 'git-html5/commands
                 console.log("got HEAD as:", headSha);
                 console.log("limit to:"+limit);
                 store._getCommitGraph([headSha], limit, function(commitList){
-                callback(commitList);
-                });
+                    callback(commitList);
+                }, progressCB);
             });
         });
     }
