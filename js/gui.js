@@ -245,6 +245,8 @@ define(['./git-cmds', 'js/paged-table', './git-data-helper', 'utils/misc_utils']
             $("#remoteOpen").hide(); //hide clone-repo ui in case it was open
             currentRepoCommits = commits;
             showLog(commits);
+        }, function(n) { 
+            renderStatusBar("loading log... "+n+" commits so far");
         });
     }
     
