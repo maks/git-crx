@@ -70,6 +70,7 @@ define(['./git-cmds', 'js/paged-table', './git-data-helper', 'utils/misc_utils',
       if (!myCodeMirror) {
         console.log("CM init");
         myCodeMirror = CodeMirror(document.querySelector("#mainContainer"), cmConfig);
+        CodeMirror.modeURL = "lib/mode/%N/%N.js";
         $(".CodeMirror").height("50%");
         $("#commitListContainer").height("50%");
         return true;
@@ -81,8 +82,16 @@ define(['./git-cmds', 'js/paged-table', './git-data-helper', 'utils/misc_utils',
     
     function loadIntoCM(txt, filename) {
         console.log("load into CM "+filename);
-        myCodeMirror.setOption("mode", mimeUtils.guessFileType(txt.substring(0, 80), filename));
-        myCodeMirror.getDoc().setValue(txt);
+        var mode = mimeUtils.guessFileType(txt.substring(0, 80), filename);
+        if (mode.name) {
+            CodeMirror.requireMode(mode.name, function() {
+                myCodeMirror.setOption("mode", mode.mime);
+                myCodeMirror.getDoc().setValue(txt);    
+            });    
+        } else {
+            myCodeMirror.setOption("mode", mode.mime);
+            myCodeMirror.getDoc().setValue(txt);    
+        }
     }
     
    function updateStatusBar() {

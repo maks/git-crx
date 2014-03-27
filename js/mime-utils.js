@@ -1,12 +1,52 @@
 define(function() {
     function guessFileType(snippet, filename) {
         var extMap = {
-            "diff" : "text/x-diff",
-            "js" : "text/javascript",
-            "json" : "application/json",
-            "md" : "gfm"
+            "diff" : {
+                mime: "text/x-diff",
+                name: "diff"
+            },
+            "js" : {
+                mime: "text/javascript",
+                name: "javascript"
+            },
+            "json" : {
+                mime: "application/json",
+                name: "javascript"
+            },
+            "html" : {
+                mime: "text/html",
+                name: "htmlmixed"
+            },
+            "css" : {
+                mime: "text/css",
+                name: "css"
+            },
+            "ts" : {
+                mime: "text/typescript",
+                name: "javascript"
+            },
+            "java" : {
+                mime: "text/x-java",
+                name: "clike"
+            },
+            "c" : {
+                mime: "text/x-csrc",
+                name: "clike"
+            },
+            "h" : {
+                mime: "text/x-csrc",
+                name: "clike"
+            },
+            "http" : {
+                mime: "message/http",
+                name: "http"
+            },
+            "md" : {
+                mime: "text/x-markdown",
+                name: "markdown"
+            }
         };
-        var mode = "text/plain"; //default
+        var mode;
         var ext;
         console.log("guess for "+filename);
         if (filename) {
@@ -21,7 +61,7 @@ define(function() {
                 //TODO try reading file to guess content type
             }
         }
-        return mode;
+        return mode || { mime: "text/plain" };
     }
     
     return {
