@@ -66,7 +66,7 @@ define(['js/hairlip', 'utils/misc_utils'], function(hairlip, miscUtils) {
         };
         var trTempl = '<tr id="{{sha}}" class="{{type}}" > \
             <td>{{type}}</td> \
-            <td>{{name}}</td> \
+            <td class="filename">{{name}}</td> \
         </tr>';
         return hairlip(treeItemData, trTempl);
     }

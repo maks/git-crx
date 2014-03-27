@@ -1,8 +1,7 @@
-define(['./git-cmds', 'js/paged-table', './git-data-helper', 'utils/misc_utils'], function(git, PagedTable, gitDataHelper, miscUtils) {
+define(['./git-cmds', 'js/paged-table', './git-data-helper', 'utils/misc_utils', './mime-utils'], function(git, PagedTable, gitDataHelper, miscUtils, mimeUtils) {
 
     //setup Codemirror
     var cmConfig = {
-      mode: "text/x-diff",
       theme: "midnight",
       readOnly: true,
       styleActiveLine: true,
@@ -41,7 +40,7 @@ define(['./git-cmds', 'js/paged-table', './git-data-helper', 'utils/misc_utils']
             console.log("show commit txt in CM...");
             var commit = currentListTable.getData()[currentListTable.getCurrentIndex()];
             var header = gitDataHelper.commitHeader(commit);
-            myCodeMirror.getDoc().setValue(header+commitTxt);
+            loadIntoCM(header+commitTxt, "commit.diff");
           });
       } else if (currentListTable == treeviewTable) {
           if (currentSha === "..") {
@@ -59,7 +58,7 @@ define(['./git-cmds', 'js/paged-table', './git-data-helper', 'utils/misc_utils']
                           $(".CodeMirror").show();
                           myCodeMirror.refresh();
                       }
-                      myCodeMirror.getDoc().setValue(fileAsString);
+                      loadIntoCM(fileAsString, currentLine.children(".filename").text());
                   }, function(err) { console.error(err);});
 
               }
@@ -78,6 +77,12 @@ define(['./git-cmds', 'js/paged-table', './git-data-helper', 'utils/misc_utils']
           console.log("nothing to Init, CM already available");
           return false;
       }
+    }
+    
+    function loadIntoCM(txt, filename) {
+        console.log("load into CM "+filename);
+        myCodeMirror.setOption("mode", mimeUtils.guessFileType(txt.substring(0, 80), filename));
+        myCodeMirror.getDoc().setValue(txt);
     }
     
    function updateStatusBar() {
