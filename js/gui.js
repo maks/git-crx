@@ -27,7 +27,8 @@ define(['./git-cmds', 'js/paged-table', './git-data-helper', 'utils/misc_utils']
       console.log("SEL", currentLine);
           
       if (currentListTable == branchListTable) {
-          console.error("TODO: show specific branch commitlog");
+          console.log("show specific branch commitlog", currentSha);
+          getAndThenShowLog(currentSha);
       } else if (currentListTable == commitListTable) {
           if (!initCM()) {
               $(".CodeMirror").show();
@@ -236,12 +237,12 @@ define(['./git-cmds', 'js/paged-table', './git-data-helper', 'utils/misc_utils']
         if (currentContext[0] == currentContext.CONTEXT_CLONING) {
             showError("cannot open repo while clone in progress");
         }
-        git.getFS(getAndThenShowLog);
+        git.getFS(function() { getAndThenShowLog(); } );
     }
     
-    function getAndThenShowLog() {
+    function getAndThenShowLog(startAtCommit) {
         //show commit log...
-        git.getLog(MAX_COMMIT_HIST, function(commits) {
+        git.getLog(MAX_COMMIT_HIST, startAtCommit, function(commits) {
             $("#remoteOpen").hide(); //hide clone-repo ui in case it was open
             currentRepoCommits = commits;
             showLog(commits);
@@ -276,6 +277,7 @@ define(['./git-cmds', 'js/paged-table', './git-data-helper', 'utils/misc_utils']
                console.error("no currentLine - cannot show tree!");
                return;
         } 
+        console.log("show tree:", currentLine.attr("id"));
         git.getCommitForSha(currentLine.attr("id"), function(commit){
 			showTree(commit.tree);
 		});
