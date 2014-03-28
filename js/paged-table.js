@@ -121,6 +121,10 @@ define(function() {
             this.redraw = function() {
                 this.fillTable(0);
             }
+            this.setHeader = function(txt) {
+                var jqTableHeader = $(this.conf.tableElem).find("th");
+                jqTableHeader.text(txt);
+            }
         }    
     return PagedTable;
 });

@@ -208,40 +208,23 @@ define(['./git-cmds', 'js/paged-table', './git-data-helper', 'utils/misc_utils',
         updateStatusBar();
     }
     
-    function showBranches() {        
-        git.getAllBranches(function(heads) {
-            console.log("HEADS", heads);
-            var headsData = heads.concat();
+    function showBranches() {
+        git.getAllBranches(function(headsData) { //headsData is Arr of Objects, each w/ sha and name props
             var config = {
                 pageSize: NUM_COMMIT_LINES,
                 data: headsData,
                 trRenderer: gitDataHelper.renderTRBranchLine,
                 tableElem:  document.querySelector("#branchList")
             };
-            heads.asyncEach(function(head, done, i) {
-               git.getShaForHead(head, function(sha) {
-                     headsData[i] = { "name" : headsData[i], "sha" : sha };
-                     done();
-                   }, function(err) {
-                   console.error("err getting sha for head for:"+head, err);
-                   showError("Error getting SHA for at lest 1 HEAD in branch list");
-                   done();
-               }); 
-            }, showTable);
+            //setup the commitList
+            branchListTable = new PagedTable(config);            
+            $("#commitList").hide();
+            $("#treeview").hide();
+            $("#branchList").show();
+            currentListTable = branchListTable;
+            updateStatusBar();
             
-            function showTable() {
-                //setup the commitList
-                branchListTable = new PagedTable(config);            
-                $("#commitList").hide();
-                $("#treeview").hide();
-                $("#branchList").show();
-                currentListTable = branchListTable;
-                updateStatusBar();    
-            }
-            
-        }, function(err) {
-            showError(err);
-        });
+        }, function(err) { showError(err);});
     }
     
     function showCommits() {
@@ -261,6 +244,13 @@ define(['./git-cmds', 'js/paged-table', './git-data-helper', 'utils/misc_utils',
             $("#remoteOpen").hide(); //hide clone-repo ui in case it was open
             currentRepoCommits = commits;
             showLog(commits);
+            git.getHeadNameForSha(startAtCommit, function(headName) {
+                if (headName) {
+                    currentListTable.setHeader("Commits ["+headName+"]");
+                } else {
+                    console.log("no head for:"+startAtCommit)
+                }
+            });
         }, function(n) { 
             renderStatusBar("loading log... "+n+" commits so far");
         });

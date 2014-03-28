@@ -3,6 +3,7 @@ define(['require', 'objectstore/file_repo', 'commands/diff', 'git-html5/commands
     var outDir;
     var FS;
     var currentRepo;
+    var currentHeadsCache; //cache all the currentRepos Head refs
 
     function setOutDir(dir) {
         outDir = dir;
@@ -53,8 +54,18 @@ define(['require', 'objectstore/file_repo', 'commands/diff', 'git-html5/commands
             errorCB("No local repo selected");
         } else {
             currentRepo.getAllHeads(function(heads) {
-                callback(heads);
-            })
+                currentHeadsCache = [];
+                heads.asyncEach(function(head, done, i) {
+                   getShaForHead(head, function(sha) {
+                         currentHeadsCache[i] = { "name" : heads[i], "sha" : sha };
+                         done();
+                   }, function(err) {
+                       console.error("err getting sha for head for:"+head, err);
+                       errorCB("Error getting SHA for at lest 1 HEAD in branch list");
+                       done();
+                   }); 
+                }, function () { callback(currentHeadsCache);});
+            }, errorCB);
         }
     }
     
@@ -155,6 +166,25 @@ define(['require', 'objectstore/file_repo', 'commands/diff', 'git-html5/commands
         currentRepo._retrieveObject(sha, 'Blob', callback, error);
     }
     
+    function getHeadNameForSha(sha, callback) {        
+        if (!currentHeadsCache) {
+           getAllBranches(function() {searchCache(sha, callback);} );
+        } else {
+           searchCache(sha, callback); 
+        }
+    }
+    
+    function searchCache(sha, callback) {
+        var res;
+        for(var i=0; i < currentHeadsCache.length; i++) {
+            if (currentHeadsCache[i].sha == sha) {
+               res = currentHeadsCache[i].name;
+               break;
+            }
+        }
+        callback(res); //nothing found
+    }
+    
     return {
         cloneRemote: cloneRemote,
         renderCommit: renderCommit,
@@ -163,9 +193,9 @@ define(['require', 'objectstore/file_repo', 'commands/diff', 'git-html5/commands
         getLog: getLog,
         setOutDir: setOutDir,
         getAllBranches: getAllBranches,
-        getShaForHead: getShaForHead,
         getTreeForSha: getTreeForSha,
         getCommitForSha: getCommitForSha,
-        getBlobForSha: getBlobForSha
+        getBlobForSha: getBlobForSha,
+        getHeadNameForSha: getHeadNameForSha
     };
 });
