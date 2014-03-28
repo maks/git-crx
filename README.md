@@ -38,6 +38,7 @@ This application is only possible thanks to the hard work of the authors of the 
 * Keyboard handling using [MouseTrap](http://craig.is/killing/mice)
 * AMD support using [require.js](http://requirejs.org)
 * Help overlay uses [QuestionMark.js[(http://impressivewebs.github.io/QuestionMark.js)
+* Logos: Git Logo by Jason Long is licensed under the Creative Commons Attribution 3.0 Unported License
 * Last but never least, the ubiquitous JQuery (http://jquery.com)
 
 

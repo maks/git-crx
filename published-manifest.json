@@ -1,6 +1,6 @@
 {
-  "name": "sj-tig DEV",
-  "short_name": "sj-tig DEV",
+  "name": "sj-tig",
+  "short_name": "sj-tig",
   "version": "0.0.4",
   "manifest_version": 2,
   "minimum_chrome_version": "33",
@@ -20,8 +20,8 @@
     {"socket": [ "tcp-connect", "tcp-listen" ]}
   ],
   "icons": {
-    "16": "icons/git-icon-black-16.png",
-    "128": "icons/git-icon-black-128.png",
-    "256": "icons/git-icon-black-256.png"
+    "16": "icons/git-icon-orange-16.png",
+    "128": "icons/git-icon-orange-128.png",
+    "256": "icons/git-icon-orange-256.png"
   }
 }
