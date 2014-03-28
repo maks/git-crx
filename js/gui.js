@@ -1,4 +1,5 @@
-define(['./git-cmds', 'js/paged-table', './git-data-helper', 'utils/misc_utils', './mime-utils'], function(git, PagedTable, gitDataHelper, miscUtils, mimeUtils) {
+define(['./git-cmds', 'js/paged-table', './git-data-helper', 'utils/misc_utils', './mime-utils', 'cm/lib/codemirror'], 
+    function(git, PagedTable, gitDataHelper, miscUtils, mimeUtils, CodeMirror) {
 
     //setup Codemirror
     var cmConfig = {
@@ -8,6 +9,8 @@ define(['./git-cmds', 'js/paged-table', './git-data-helper', 'utils/misc_utils',
       //Tab disabled to allow normal browser tabbing to occur b/w CM and commit list 
       extraKeys: { Tab: false }
     };
+    
+    console.log("CM is", define.amd);
     
     var currentListTable, commitListTable, branchListTable, treeviewTable; //always start with commit list view
     var myCodeMirror;
@@ -68,9 +71,9 @@ define(['./git-cmds', 'js/paged-table', './git-data-helper', 'utils/misc_utils',
     
     function initCM() {
       if (!myCodeMirror) {
-        console.log("CM init");
         myCodeMirror = CodeMirror(document.querySelector("#mainContainer"), cmConfig);
-        CodeMirror.modeURL = "lib/mode/%N/%N.js";
+        console.log("CM init", myCodeMirror);
+        CodeMirror.modeURL = "lib/cm/mode/%N/%N.js"; //make sure real path not AMD alias
         $(".CodeMirror").height("50%");
         $("#commitListContainer").height("50%");
         return true;
@@ -84,7 +87,7 @@ define(['./git-cmds', 'js/paged-table', './git-data-helper', 'utils/misc_utils',
         console.log("load into CM "+filename);
         var mode = mimeUtils.guessFileType(txt.substring(0, 80), filename);
         if (mode.name) {
-            CodeMirror.requireMode(mode.name, function() {
+            require(['cm/mode/'+mode.name+"/"+mode.name], function () {
                 myCodeMirror.setOption("mode", mode.mime);
                 myCodeMirror.getDoc().setValue(txt);    
             });    

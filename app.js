@@ -11,7 +11,8 @@ requirejs.config({
          'thirdparty' : "git-html5/thirdparty",
          'npm' : "node_modules",
          'lib' : 'lib',
-         'js': 'js'
+         'js': 'js',
+         'cm': 'lib/cm'
      }
 });
 
