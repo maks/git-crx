@@ -1,3 +1,30 @@
 !#/bin/sh
 DIST_VER=`date +%Y%m%d-%H%M`
-zip -r ../sj-tig-$DIST_VER.zip .
+PKGDIR=builds/pkg-$DIST_VER
+ZIPFILE=sj-tig-$DIST_VER.zip
+
+mkdir -p $PKGDIR/git-html5
+mkdir -p $PKGDIR/icons
+mkdir -p $PKGDIR/node_modules/diff
+
+cp published-manifest.json $PKGDIR/manifest.json
+cp *.js $PKGDIR/
+cp *.html $PKGDIR/
+cp -r js $PKGDIR/
+cp -r css $PKGDIR/
+cp -r lib $PKGDIR/
+
+cp git-html5/*.js  $PKGDIR/git-html5/
+cp -r git-html5/commands  $PKGDIR/git-html5/
+cp -r git-html5/formats  $PKGDIR/git-html5/
+cp -r git-html5/objectstore  $PKGDIR/git-html5/
+cp -r git-html5/thirdparty  $PKGDIR/git-html5/
+cp -r git-html5/utils  $PKGDIR/git-html5/
+cp -r git-html5/workers  $PKGDIR/git-html5/workers
+
+cp icons/*orange* $PKGDIR/icons/
+cp node_modules/diff/diff.js $PKGDIR/node_modules/diff/
+
+echo "Packaging into $ZIPFILE"
+zip -r builds/$ZIPFILE $PKGDIR
+#rm -rf $PKGDIR
