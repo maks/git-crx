@@ -1,5 +1,5 @@
-define(['./git-cmds', 'js/paged-table', './git-data-helper', 'utils/misc_utils', './mime-utils', 'cm/lib/codemirror'], 
-    function(git, PagedTable, gitDataHelper, miscUtils, mimeUtils, CodeMirror) {
+define(['./git-cmds', 'js/paged-table', './git-data-helper', 'utils/misc_utils', './mime-utils', 'cm/lib/codemirror', 'cm/addon/selection/active-line'], 
+    function(git, PagedTable, gitDataHelper, miscUtils, mimeUtils, CodeMirror, CM_shim) {
 
     //setup Codemirror
     var cmConfig = {
@@ -9,8 +9,6 @@ define(['./git-cmds', 'js/paged-table', './git-data-helper', 'utils/misc_utils',
       //Tab disabled to allow normal browser tabbing to occur b/w CM and commit list 
       extraKeys: { Tab: false }
     };
-    
-    console.log("CM is", define.amd);
     
     var currentListTable, commitListTable, branchListTable, treeviewTable; //always start with commit list view
     var myCodeMirror;
