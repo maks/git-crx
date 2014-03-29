@@ -53,8 +53,11 @@ define(['./git-cmds', 'js/paged-table', './git-data-helper', 'utils/misc_utils',
                   showError("TODO: showing submodules in treeview");
               } else {
                   git.getBlobForSha(currentSha, function(blob) {
-                      var fileAsString = miscUtils.bytesToString(blob.data);
-                      console.log("got file str", blob);
+                      var contents = blob.data;
+                      if (blob.data instanceof ArrayBuffer) {
+						 contents = new Uint8Array(blob.data);
+					  }
+                      var fileAsString = miscUtils.bytesToString(contents);
                       if (!initCM()) {
                           $(".CodeMirror").show();
                           myCodeMirror.refresh();
