@@ -74,7 +74,6 @@ define(['./git-cmds', 'js/paged-table', './git-data-helper', 'utils/misc_utils',
       if (!myCodeMirror) {
         myCodeMirror = CodeMirror(document.querySelector("#mainContainer"), cmConfig);
         console.log("CM init", myCodeMirror);
-        CodeMirror.modeURL = "lib/cm/mode/%N/%N.js"; //make sure real path not AMD alias
         $(".CodeMirror").height("50%");
         $("#commitListContainer").height("50%");
         return true;
