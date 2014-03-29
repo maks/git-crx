@@ -38,7 +38,7 @@ define(['js/hairlip', 'utils/misc_utils'], function(hairlip, miscUtils) {
             sha: commitData.sha,
             author : commitData.author.name,
             date : commitData.author.date.toDateString(),
-            time : commitData.author.date.getHours()+":"+commitData.author.date.getMinutes(),
+            time : pad(commitData.author.date.getHours(),2)+":"+pad(commitData.author.date.getMinutes(),2),
             mesg : lineOr70chr(commitData.message)
         };
         var trTempl = '<tr id="{{sha}}"> \
@@ -80,6 +80,13 @@ define(['js/hairlip', 'utils/misc_utils'], function(hairlip, miscUtils) {
         } else {
             return url.substring(i2+1, url.length);
         }
+    }
+    
+    //from http://stackoverflow.com/a/10073788/85472
+    function pad(n, width, z) {
+      z = z || '0';
+      n = n + '';
+      return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
     }
     
 
