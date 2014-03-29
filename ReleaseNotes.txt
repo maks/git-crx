@@ -1,0 +1,18 @@
+New in 0.0.5:
+=============
+
+* new icon for both light and dark backgrounds
+* bug fix for not displaying file contents in tree-file view
+* support for syntax highlighting of code in tree-file view
+* internal cleanup for future features
+* reduced size of install by removing unneeded files
+
+
+New in 0.0.4:
+=============
+* branch list
+* view tree for any commit without checking out!
+* show progress while reading large commit logs
+* bug fixes
+
+see https://github.com/maks/sj-tig/issues?milestone=2&page=1&state=closed for more details of whats new in this update.
