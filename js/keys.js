@@ -9,6 +9,7 @@ define(['./gui'], function(ui) {
         Mousetrap.bind(['l'], function(x) { ui.showCommits(); });
         Mousetrap.bind(['t'], function(x) { ui.showTreeForCommit(); });
         Mousetrap.bind(['A'], function(x) { ui.showRemoteRefs(); });
+        Mousetrap.bind(['O'], function(x) { ui.checkOutSelBranch(); });
         Mousetrap.bind(['mod+l'], ui.askForRemote );
         Mousetrap.bind(['mod+o'], ui.chooseFSForLocalRepo );
         Mousetrap.bind(['q'], ui.cancelCurrentContext );

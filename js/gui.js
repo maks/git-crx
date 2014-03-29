@@ -342,7 +342,13 @@ define(['./git-cmds', 'js/paged-table', './git-data-helper', 'utils/misc_utils',
 			}
 		}, showError);
 	}
-        
+	
+    function checkOutSelBranch() {
+        var currentLine = currentListTable.getCurrentTR();
+        var selectedBranch = currentLine.find("td.branchName").text();
+        console.log("CHECKOUT branch:", selectedBranch);
+    }
+	
     function showError(str) {
         console.log("show user err:"+str);
         $("#errorbar").text(str);
@@ -357,6 +363,7 @@ define(['./git-cmds', 'js/paged-table', './git-data-helper', 'utils/misc_utils',
         showBranches: showBranches,
         showCommits: showCommits,
         showTreeForCommit: showTreeForCommit,
-		showRemoteRefs: showRemoteRefs
+		showRemoteRefs: showRemoteRefs,
+        checkOutSelBranch : checkOutSelBranch
     };
 });

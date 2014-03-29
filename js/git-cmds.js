@@ -1,4 +1,5 @@
-define(['require', 'objectstore/file_repo', 'commands/diff', 'git-html5/commands/clone', 'git-html5/commands/lsremote'], function(require, FileObjectStore, diff, clone, lsremote) {
+define(['require', 'objectstore/file_repo', 'commands/diff', 'git-html5/commands/clone', 'git-html5/commands/lsremote', 'git-html5/commands/checkout'], 
+    function(require, FileObjectStore, diff, clone, lsremote, checkout) {
 
     var outDir;
     var FS;
@@ -199,6 +200,14 @@ define(['require', 'objectstore/file_repo', 'commands/diff', 'git-html5/commands
             }
         });
         
+    function checkoutBranch(branchName, callback, errorCB) {
+        var options = {
+            branch: branchName,
+            dir: outDir,
+            store: currentRepo            
+        };
+        
+        checkout(config, callback, errorCB);
     }
     
     return {
@@ -213,6 +222,7 @@ define(['require', 'objectstore/file_repo', 'commands/diff', 'git-html5/commands
         getCommitForSha: getCommitForSha,
         getBlobForSha: getBlobForSha,
         getHeadNameForSha: getHeadNameForSha,
-        lsRemoteRefs: lsRemoteRefs
+        lsRemoteRefs: lsRemoteRefs,
+        checkoutBranch: checkoutBranch
     };
 });
