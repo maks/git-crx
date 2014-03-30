@@ -1,4 +1,4 @@
-define(['require', 'objectstore/file_repo', 'commands/diff', 'git-html5/commands/clone'], function(require, FileObjectStore, diff, clone) {
+define(['require', 'objectstore/file_repo', 'commands/diff', 'git-html5/commands/clone', 'git-html5/commands/lsremote'], function(require, FileObjectStore, diff, clone, lsremote) {
 
     var outDir;
     var FS;
@@ -185,6 +185,18 @@ define(['require', 'objectstore/file_repo', 'commands/diff', 'git-html5/commands
         callback(res); //nothing found
     }
     
+    function lsRemoteRefs(callback) {
+        currentRepo.getConfig(function(config) {
+            console.log("repo conf", config);
+            var opts = {
+                url: config.url,
+                store: currentRepo
+            };
+            lsremote(opts, callback);    
+        });
+        
+    }
+    
     return {
         cloneRemote: cloneRemote,
         renderCommit: renderCommit,
@@ -196,6 +208,7 @@ define(['require', 'objectstore/file_repo', 'commands/diff', 'git-html5/commands
         getTreeForSha: getTreeForSha,
         getCommitForSha: getCommitForSha,
         getBlobForSha: getBlobForSha,
-        getHeadNameForSha: getHeadNameForSha
+        getHeadNameForSha: getHeadNameForSha,
+        lsRemoteRefs: lsRemoteRefs
     };
 });

@@ -118,6 +118,10 @@ define(function() {
                 return this.conf.data;
             };
             
+            this.appendData = function(extraData) {
+                this.conf.data = this.conf.data.concat(extraData);
+            }
+            
             this.redraw = function() {
                 this.fillTable(0);
             }

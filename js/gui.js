@@ -326,6 +326,22 @@ define(['./git-cmds', 'js/paged-table', './git-data-helper', 'utils/misc_utils',
         treeviewTable.redraw(); //redraw table contents
         updateStatusBar();
     }
+	
+	function showRemoteRefs() {
+		git.lsRemoteRefs(function(remoteRefs) {
+			console.log("got remote refs", remoteRefs);
+			//rename
+			remoteRefs.forEach(function(x) {
+				x.name = x.name.replace(/^refs/,'remotes/origin');
+			})
+			if (currentListTable == branchListTable) {
+				currentListTable.appendData(remoteRefs);
+				currentListTable.redraw();
+			} else {
+				showError("cannot show Remote Branches when not in Branch List View!");
+			}
+		});
+	}
         
     function showError(str) {
         console.log("show user err:"+str);
@@ -340,6 +356,7 @@ define(['./git-cmds', 'js/paged-table', './git-data-helper', 'utils/misc_utils',
         cancelCurrentContext: cancelCurrentContext,
         showBranches: showBranches,
         showCommits: showCommits,
-        showTreeForCommit: showTreeForCommit
+        showTreeForCommit: showTreeForCommit,
+		showRemoteRefs: showRemoteRefs
     };
 });
