@@ -340,7 +340,7 @@ define(['./git-cmds', 'js/paged-table', './git-data-helper', 'utils/misc_utils',
 			} else {
 				showError("cannot show Remote Branches when not in Branch List View!");
 			}
-		});
+		}, showError);
 	}
         
     function showError(str) {

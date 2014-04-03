@@ -185,14 +185,18 @@ define(['require', 'objectstore/file_repo', 'commands/diff', 'git-html5/commands
         callback(res); //nothing found
     }
     
-    function lsRemoteRefs(callback) {
+    function lsRemoteRefs(callback, errorCB) {
         currentRepo.getConfig(function(config) {
             console.log("repo conf", config);
-            var opts = {
-                url: config.url,
-                store: currentRepo
-            };
-            lsremote(opts, callback);    
+            if (config.url) {
+                var opts = {
+                    url: config.url,
+                    store: currentRepo
+                };
+                lsremote(opts, callback);
+            } else {
+                errorCB("missing git-html5 config.json in Current Repo");
+            }
         });
         
     }
