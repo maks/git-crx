@@ -57,6 +57,10 @@ footer {
   display: none;
 }
 
+#newBranch{
+  display: none;
+}
+
 #getDirButton {
   display: none;
 }

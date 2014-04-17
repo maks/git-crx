@@ -327,6 +327,17 @@ define(['./git-cmds', 'js/paged-table', './git-data-helper', 'utils/misc_utils',
         updateStatusBar();
     }
 	
+	/**
+	 * lookup sha in cache of current repos commit log
+	 */
+	function getFromCurrentRepoCommits(sha) {
+		for(var i=0; i < currentRepoCommits.length; i++) {
+			if (currentRepoCommits[i].sha == sha) {
+				return currentRepoCommits[i];
+			}
+		}
+	}
+	
 	function showRemoteRefs() {
 		git.lsRemoteRefs(function(remoteRefs) {
 			console.log("got remote refs", remoteRefs);
@@ -343,15 +354,74 @@ define(['./git-cmds', 'js/paged-table', './git-data-helper', 'utils/misc_utils',
 		}, showError);
 	}
 	
-    function checkOutSelBranch() {
+    function checkOutCurrentlySelected() {
         var currentLine = currentListTable.getCurrentTR();
         var selectedBranch = currentLine.find("td.branchName").text();
-        console.log("CHECKOUT branch:", selectedBranch);
+        var currentSha = currentLine.attr("id");
+        var ref;
+
+         if (selectedBranch) {
+            console.log("CHECKOUT branch:", selectedBranch);
+            if (selectedBranch.indexOf("/") < 0) {
+                ref = "refs/heads/"+selectedBranch;
+            } else {
+                ref = selectedBranch;
+            }
+            git.checkoutRef(ref, function(checkedoutRef) {
+                console.log("Checked out branch:"+checkedoutRef);
+                var userBranchName = checkedoutRef.replace(/refs\/heads\//, "");
+                showStatus("Checked out branch:"+userBranchName);
+            }, showError);
+         } else if (currentSha) {
+             console.log("CHECKOUT detached SHA:", currentSha);
+             //TODO: git.checkoutSha()
+         }
     }
 	
+	function askToCreateNewBranch() {
+		if (!git.getCurrentRepo()) {
+			showError("Please open a Git Repo First!");
+			return;
+		}
+		var currentLine = currentListTable.getCurrentTR();
+		var currentSha = currentLine.attr("id");
+		var selectedBranch = currentLine.find("td.branchName").text();
+		$("#remoteOpen").hide();
+		$("#newBranch").show();
+		
+		$("#createBranchButton").click(function(){
+			var nuRefName = $("#nuBranchName").val();
+			var existingName = $("#nuBranchExistingRef").val();
+			//note: existingName could be a branchname, full ref or sha
+			git.makeRef(existingName, nuRefName, 
+				function() { showStatus("created new Branch "+nuRefName); },
+				function(e) { 
+					if (e){ 
+						showError(e.msg);
+					} else {
+						showError("invalid ref to create new Branch from:"+existingName);
+					}
+				}
+			);	
+		});		
+		var existingRefOrSha;
+		if (selectedBranch) {
+			existingRefOrSha = selectedBranch;	
+		} else {
+			existingRefOrSha = currentSha;
+		}
+		console.log("existing ", existingRefOrSha)
+		$("#nuBranchExistingRef").val(existingRefOrSha);
+	}
+	
     function showError(str) {
-        console.log("show user err:"+str);
+        console.log("show user err:", str);
         $("#errorbar").text(str);
+    }
+	
+	 function showStatus(str) {
+        console.log("show user status:", str);
+        $("#errorbar").text(str);//FIXME: show status mesg in diff style to errors
     }
     
     return {
@@ -363,7 +433,8 @@ define(['./git-cmds', 'js/paged-table', './git-data-helper', 'utils/misc_utils',
         showBranches: showBranches,
         showCommits: showCommits,
         showTreeForCommit: showTreeForCommit,
-		showRemoteRefs: showRemoteRefs,
-        checkOutSelBranch : checkOutSelBranch
+        showRemoteRefs: showRemoteRefs,
+        checkOutCurrentlySelected : checkOutCurrentlySelected,
+        askToCreateNewBranch : askToCreateNewBranch
     };
 });

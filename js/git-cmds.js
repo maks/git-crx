@@ -1,5 +1,7 @@
-define(['require', 'objectstore/file_repo', 'commands/diff', 'git-html5/commands/clone', 'git-html5/commands/lsremote', 'git-html5/commands/checkout'], 
-    function(require, FileObjectStore, diff, clone, lsremote, checkout) {
+define(['require', 'objectstore/file_repo', 'commands/diff', 'git-html5/commands/clone', 'git-html5/commands/lsremote', 
+        'git-html5/commands/checkout', 'git-html5/commands/branch'], 
+    function(require, FileObjectStore, diff, clone, lsremote, 
+            checkout, branch) {
 
     var outDir;
     var FS;
@@ -152,7 +154,7 @@ define(['require', 'objectstore/file_repo', 'commands/diff', 'git-html5/commands
     
     function getShaForHead(headName, callback, error) {
         var refName = "refs/heads/"+headName;
-        currentRepo._getHeadForRef(refName, callback, onerror);
+        currentRepo._getHeadForRef(refName, callback, error);
     }
     
     function getTreeForSha(sha, callback, error) {
@@ -166,7 +168,7 @@ define(['require', 'objectstore/file_repo', 'commands/diff', 'git-html5/commands
     function getBlobForSha(sha, callback, error) {
         currentRepo._retrieveObject(sha, 'Blob', callback, error);
     }
-    
+        
     function getHeadNameForSha(sha, callback) {        
         if (!currentHeadsCache) {
            getAllBranches(function() {searchCache(sha, callback);} );
@@ -199,15 +201,59 @@ define(['require', 'objectstore/file_repo', 'commands/diff', 'git-html5/commands
                 errorCB("missing git-html5 config.json in Current Repo");
             }
         });
+    }
         
-    function checkoutBranch(branchName, callback, errorCB) {
-        var options = {
-            branch: branchName,
+    function checkoutRef(ref, callback, errorCB) {
+        var checkoutOptions = {
+            ref: ref,
             dir: outDir,
-            store: currentRepo            
+            objectStore: currentRepo
         };
+        if (ref.indexOf("remotes/") == 0) {
+            console.log("Remote refs are checked out as Detached Heads! "+ref);
+            currentRepo._getHeadForRef("refs/"+ref, function(sha) {
+                console.log("got sha for "+ref, sha);
+                delete checkoutOptions.ref;
+                checkoutOptions.sha = sha; 
+                checkout(checkoutOptions, callback, errorCB);
+            }, errorCB);
+        } else {
+            console.log("checkout existing branch", ref);
+            checkout(checkoutOptions, function() {
+                console.log("CHECK OUT OK "+ref);
+                callback(ref);
+            }, errorCB);
+        }
+    }
+    
+    function checkoutSha(sha, callback, errorCB) {
+        //TODO
+    }
+    
+    /**
+     * 
+     */
+    function makeRef(existingName, nuRef, callback, errorCB) {
+        var branchOptions = {
+            objectStore: currentRepo,
+            branch: nuRef
+        };
+        console.log("make nu ref to:"+existingName);
+        //first check if we have branch name...
+        getShaForHead(existingName, function(sha) {
+            branchOptions.sha = sha;
+            console.log("make nu Ref "+nuRef+" using sha:"+sha);
+            branch(branchOptions, callback, errorCB);    
+        }, function() {
+            //TODO:
+            //ok so its not a branchname - check for a full ref...
+            
+            //otherwise we assume its a valid sha
+            console.log("not a branchname, using as sha"+existingName);
+            branchOptions.sha = existingName;
+            branch(branchOptions, callback, errorCB);
+        });
         
-        checkout(config, callback, errorCB);
     }
     
     return {
@@ -223,6 +269,8 @@ define(['require', 'objectstore/file_repo', 'commands/diff', 'git-html5/commands
         getBlobForSha: getBlobForSha,
         getHeadNameForSha: getHeadNameForSha,
         lsRemoteRefs: lsRemoteRefs,
-        checkoutBranch: checkoutBranch
+        checkoutRef: checkoutRef,
+        checkoutSha: checkoutSha,
+        makeRef: makeRef
     };
 });
