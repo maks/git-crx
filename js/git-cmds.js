@@ -1,7 +1,7 @@
-define(['require', 'objectstore/file_repo', 'commands/diff', 'git-html5/commands/clone', 'git-html5/commands/lsremote', 
-        'git-html5/commands/checkout', 'git-html5/commands/branch'], 
+define(['require', 'objectstore/file_repo', 'commands/diff', 'commands/clone', 'commands/lsremote', 
+        'commands/checkout', 'commands/branch', 'formats/dircache'], 
     function(require, FileObjectStore, diff, clone, lsremote, 
-            checkout, branch) {
+            checkout, branch, Dircache) {
 
     var outDir;
     var FS;
@@ -11,9 +11,13 @@ define(['require', 'objectstore/file_repo', 'commands/diff', 'git-html5/commands
     function setOutDir(dir) {
         outDir = dir;
     }
+    
+    function getOutDir() {
+        return outDir;
+    }
 
     function getFS(callback) {
-      chrome.fileSystem.chooseEntry({ type : "openDirectory" }, function(entry) {
+        chrome.fileSystem.chooseEntry({ type : "openDirectory" }, function(entry) {
         console.debug("got FS Dir:", entry);
         FS = entry.filesystem;
         chrome.fileSystem.getWritableEntry(entry, function(entry) {
@@ -253,7 +257,12 @@ define(['require', 'objectstore/file_repo', 'commands/diff', 'git-html5/commands
             branchOptions.sha = existingName;
             branch(branchOptions, callback, errorCB);
         });
-        
+    }
+    
+    function getDircache(callback, errorCB) {
+        currentRepo.getDircache(function(buf) {
+            callback(new Dircache(buf));
+        }, errorCB);
     }
     
     return {
@@ -263,6 +272,7 @@ define(['require', 'objectstore/file_repo', 'commands/diff', 'git-html5/commands
         getCurrentRepo: getCurrentRepo,
         getLog: getLog,
         setOutDir: setOutDir,
+        getOutDir: getOutDir,
         getAllBranches: getAllBranches,
         getTreeForSha: getTreeForSha,
         getCommitForSha: getCommitForSha,
@@ -271,6 +281,7 @@ define(['require', 'objectstore/file_repo', 'commands/diff', 'git-html5/commands
         lsRemoteRefs: lsRemoteRefs,
         checkoutRef: checkoutRef,
         checkoutSha: checkoutSha,
-        makeRef: makeRef
+        makeRef: makeRef,
+        getDircache: getDircache
     };
 });

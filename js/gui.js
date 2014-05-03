@@ -423,6 +423,16 @@ define(['./git-cmds', 'js/paged-table', './git-data-helper', 'utils/misc_utils',
         console.log("show user status:", str);
         $("#errorbar").text(str);//FIXME: show status mesg in diff style to errors
     }
+	
+	function showDircache() {
+		console.log("show dircache...");
+		git.getDircache(function(dircache) {
+			console.log("got dircache", dircache);
+			console.log("got .gitignore", dircache.getEntry(".gitignore"));
+		}, function(e) {
+			console.error("got err", e);
+		});
+	}
     
     return {
         moveSelLine: moveSelLine,
@@ -435,6 +445,7 @@ define(['./git-cmds', 'js/paged-table', './git-data-helper', 'utils/misc_utils',
         showTreeForCommit: showTreeForCommit,
         showRemoteRefs: showRemoteRefs,
         checkOutCurrentlySelected : checkOutCurrentlySelected,
-        askToCreateNewBranch : askToCreateNewBranch
+        askToCreateNewBranch : askToCreateNewBranch,
+		showDircache: showDircache
     };
 });
