@@ -217,9 +217,7 @@ define(['require', 'objectstore/file_repo', 'commands/diff', 'commands/clone', '
             console.log("Remote refs are checked out as Detached Heads! "+ref);
             currentRepo._getHeadForRef("refs/"+ref, function(sha) {
                 console.log("got sha for "+ref, sha);
-                delete checkoutOptions.ref;
-                checkoutOptions.sha = sha; 
-                checkout(checkoutOptions, callback, errorCB);
+                checkoutSha(sha, callback, errorCB);
             }, errorCB);
         } else {
             console.log("checkout existing branch", ref);
@@ -231,7 +229,12 @@ define(['require', 'objectstore/file_repo', 'commands/diff', 'commands/clone', '
     }
     
     function checkoutSha(sha, callback, errorCB) {
-        //TODO
+        var checkoutOptions = {
+            dir: outDir,
+            objectStore: currentRepo
+        };
+        checkoutOptions.sha = sha; 
+        checkout(checkoutOptions, callback, errorCB);
     }
     
     /**

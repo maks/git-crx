@@ -53,23 +53,25 @@ define(['js/git-cmds', 'utils/file_utils'], function(git, fileUtils) {
     });
     
     asyncTest("check dircache sort order", function() {
-       
-       //fileUtils.readFile(git.getOutDir(), "tests/dircache-sorted-paths.json", "Text", function(txt) {
-         fileUtils.readFile(git.getOutDir(), "tests/dircache.txt", "Text", function(txt) {
-           //TODO - need to checkout specific commit  49df7f2085391a28fc37aa056f5c0064f0040482 that matches test data file
-           git.getDircache(function(dircache) {
-               var sortedEntries = txt.split("\n");
-               equal(sortedEntries.length, dircache.entriesCount(), "");
-               var ourSortedEntryPaths = dircache.getSortedEntryPaths();
-               for (var i = 0; i < sortedEntries.length; i++) {
-                   //compare our order of entries vs how cgit did it in the test data
-                   equal(sortedEntries[i], ourSortedEntryPaths[i], "entries must be sorted in order Git specs");
-               }
-               start();
-           });
-       }, function(e) { ok(null, "got error reading test file data:"+e)}); 
-    });
-    
+        expect(2);
+        function afterCheckout() {
+            fileUtils.readFile(git.getOutDir(), "tests/dircache.txt", "Text", function(txt) {
+                //TODO: check HEAD is now required commit 49df7f2085391a28fc37aa056f5c0064f0040482
+                git.getDircache(function(dircache) {
+                    var sortedEntries = txt.split("\n");
+                    equal(sortedEntries.length, dircache.entriesCount(), "");
+                    var ourSortedEntryPaths = dircache.getSortedEntryPaths();
+                    for (var i = 0; i < sortedEntries.length; i++) {
+                        //compare our order of entries vs how cgit did it in the test data
+                        equal(sortedEntries[i], ourSortedEntryPaths[i], "entries must be sorted in order Git specs");
+                    }
+                    start();
+                });
+            }, function(e) { console.error("ERROR reading test file data:",e)}); 
+        }
+        //first do checkout of the commit we need for the testing data
+        git.checkoutSha("49df7f2085391a28fc37aa056f5c0064f0040482", afterCheckout, function(e) { console.error("FAILED CHECKOUT:",e);})
+    });    
 });
 
 
