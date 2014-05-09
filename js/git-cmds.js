@@ -34,7 +34,7 @@ define(['require', 'objectstore/file_repo', 'commands/diff', 'commands/clone', '
     };
     
     
-    function getLog(limit, startAtCommit, callback) {
+    function getLog(limit, startAtCommit, callback, errorCB) {
         console.debug("git store:", FileObjectStore);
         var store = new FileObjectStore(outDir);
         currentRepo = store;
@@ -53,7 +53,7 @@ define(['require', 'objectstore/file_repo', 'commands/diff', 'commands/clone', '
                         });
                     });
                 }
-        });
+        }, errorCB);
     }
     
     function getAllBranches(callback, errorCB) {

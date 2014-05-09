@@ -48,29 +48,32 @@ define(['js/git-cmds', 'utils/file_utils'], function(git, fileUtils) {
                 equal(typeof dircache, "object", "dircache must be available");
                 equal(dircache.getEntry(".gitignore").path, ".gitignore", "got .gitignore");
                 start();
-            });    
-       });
+            }, function(e) { ok(false, "Error getting Dircache: "+JSON.stringify(e)); start(); });    
+       }, function(e) { ok(false, "Error getting Log:"+JSON.stringify(e)); start(); });
     });
     
     asyncTest("check dircache sort order", function() {
-        expect(2);
         function afterCheckout() {
+            console.log("did checkout of 486f55");
             fileUtils.readFile(git.getOutDir(), "tests/dircache.txt", "Text", function(txt) {
-                //TODO: check HEAD is now required commit 49df7f2085391a28fc37aa056f5c0064f0040482
+                console.log("read test file")
                 git.getDircache(function(dircache) {
                     var sortedEntries = txt.split("\n");
                     equal(sortedEntries.length, dircache.entriesCount(), "");
                     var ourSortedEntryPaths = dircache.getSortedEntryPaths();
+                    console.log("sorted ", sortedEntries)
                     for (var i = 0; i < sortedEntries.length; i++) {
                         //compare our order of entries vs how cgit did it in the test data
                         equal(sortedEntries[i], ourSortedEntryPaths[i], "entries must be sorted in order Git specs");
                     }
                     start();
                 });
-            }, function(e) { console.error("ERROR reading test file data:",e)}); 
+            }, function(e) { ok(false, "ERROR reading test file data:"+JSON.stringify(e)); start(); });
         }
         //first do checkout of the commit we need for the testing data
-        git.checkoutSha("49df7f2085391a28fc37aa056f5c0064f0040482", afterCheckout, function(e) { console.error("FAILED CHECKOUT:",e);})
+        git.checkoutSha("486f55f44c66a0145edc98f6b72d15e1ec5c357e", afterCheckout, 
+            function(e) { ok(false, "FAILED CHECKOUT:"+JSON.stringify(e)); start();}
+        );
     });    
 });
 
