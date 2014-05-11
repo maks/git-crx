@@ -1,3 +1,9 @@
+New in 0.0.7
+============
+
+* renamed to "Git Crx"
+* local and remote branch support
+
 New in 0.0.6:
 =============
 
@@ -20,4 +26,3 @@ New in 0.0.4:
 * show progress while reading large commit logs
 * bug fixes
 
-see https://github.com/maks/sj-tig/issues?milestone=2&page=1&state=closed for more details of whats new in this update.

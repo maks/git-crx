@@ -1,4 +1,4 @@
-# sj-tig 
+# Git Crx
 
 ## A Chrome Packaged App for browsing local git repositories
 
