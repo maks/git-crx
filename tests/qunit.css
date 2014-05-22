@@ -9,6 +9,10 @@
  * Pulled Live from Git Thu Dec 15 18:45:01 UTC 2011
  * Last Commit: 0712230bb203c262211649b32bd712ec7df5f857
  */
+ 
+html {
+	overflow: auto;
+}
 
 /** Font Family and Sizes */
 
