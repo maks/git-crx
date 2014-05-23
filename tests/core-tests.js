@@ -107,19 +107,35 @@ define(['js/git-cmds', 'utils/file_utils', 'formats/dircache', 'commands/status'
     
      asyncTest("working dir status - new file added", function() {
         var filename = "test-added.txt";
+        var existingFile = ".gitignore";
         fileUtils.mkfile(git.getOutDir(), filename, "foobar", function() {
             git.getLog(10, null, function() {
                 status.compareWorkDirToDircache(git.getOutDir(), git.getCurrentRepo(), function(modArr) {
                     equal(modArr.length, 1 , "there should be exactly 1 modified file in workdir");
                     equal(modArr[0].name, filename , "its name should be correct");
-                    //cleanup
-                    fileUtils.rmFile(git.getOutDir(), filename, start);
+                    
+                    fileUtils.mkfile(git.getOutDir(), existingFile, "foobar2", function() {
+                        status.compareWorkDirToDircache(git.getOutDir(), git.getCurrentRepo(), function(modArr2) {
+                            console.log("mArr2:",modArr2)
+                            equal(modArr2.length, 2 , "there should be exactly 2 modified files now in workdir");
+                            ok(findInArray(modArr2, function(x) { return (x.name == existingFile) }), "modified filename should be in modified files list");
+                            //cleanup
+                            git.reset("hard", start, QUnit.failAsync);
+                        }, QUnit.failAsync);
+                    }, QUnit.failAsync);
                 }, QUnit.failAsync);
             });
         }, QUnit.failAsync);
     });
     
-    
+    function findInArray(array, compFn) {
+        for(var i=0; i < array.length; i++) {
+            if (compFn(array[i])) {
+                return true;
+            }
+        }
+        return false;
+    }
     
 //     asyncTest("write index on checkout", function() {
 //         var testDataBlobSha = ["8e532033f25d949ae9b2ca4d882f66bd9ca40384"]; //has output of git ls-files for commit we are using here
