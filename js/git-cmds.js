@@ -268,6 +268,20 @@ define(['require', 'objectstore/file_repo', 'commands/diff', 'commands/clone', '
         }, errorCB);
     }
     
+    function reset(opt, callback, errorCB) {
+        if (opt == "hard") {
+            var checkoutOptions = {
+                dir: outDir,
+                objectStore: currentRepo,
+                nocheck: true
+            };
+            currentRepo.getHeadSha(function(headSha) {
+                checkoutOptions.sha = headSha;
+                checkout(checkoutOptions, callback, errorCB);    
+            });
+        }
+    }
+    
     return {
         cloneRemote: cloneRemote,
         renderCommit: renderCommit,
@@ -285,6 +299,7 @@ define(['require', 'objectstore/file_repo', 'commands/diff', 'commands/clone', '
         checkoutRef: checkoutRef,
         checkoutSha: checkoutSha,
         makeRef: makeRef,
-        getDircache: getDircache
+        getDircache: getDircache,
+        reset: reset
     };
 });

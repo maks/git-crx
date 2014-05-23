@@ -1,4 +1,4 @@
-define(['js/git-cmds', 'utils/file_utils', 'formats/dircache'], function(git, fileUtils, DirCache) {
+define(['js/git-cmds', 'utils/file_utils', 'formats/dircache', 'commands/status'], function(git, fileUtils, DirCache, status) {
    module("Core Tests");
     
     test("require.js needed", function() {
@@ -11,41 +11,41 @@ define(['js/git-cmds', 'utils/file_utils', 'formats/dircache'], function(git, fi
         equals(typeof git.cloneRemote, "function", "clone function should exist");
     });
     
-    asyncTest("check can do XHR", function() {
-       expect(1);
-       function reqListener () {
-          equal(this.responseText.trim(), "pong", "expect correct res text from server"); 
-          start();
-        }
-        var oReq = new XMLHttpRequest();
-        oReq.onload = reqListener;
-        oReq.open("get", "http://manichord.com/ping", true);
-        oReq.send();
-    });
+//     asyncTest("check can do XHR", function() {
+//        expect(1);
+//        function reqListener () {
+//           equal(this.responseText.trim(), "pong", "expect correct res text from server"); 
+//           start();
+//         }
+//         var oReq = new XMLHttpRequest();
+//         oReq.onload = reqListener;
+//         oReq.open("get", "http://manichord.com/ping", true);
+//         oReq.send();
+//     });
     
-    asyncTest("check can do Basic Auth XHR", function() {
-       expect(1);
+//     asyncTest("check can do Basic Auth XHR", function() {
+//        expect(1);
        
-       var authCreds = "maks:test1";
-       var oReq = new XMLHttpRequest();
+//        var authCreds = "maks:test1";
+//        var oReq = new XMLHttpRequest();
        
-       function reqListener () {
-          if (this.status == 200) {
-            equal(this.responseText.trim(), "super", "expect correct res text from server");
-            start();    
-          } else if (this.status == 401) {
-              oReq = new XMLHttpRequest();
-              oReq.onload = reqListener;
-              oReq.open("get", "http://manichord.com/auth-test/secret", true);
-              oReq.setRequestHeader("Authorization", "Basic "+btoa(authCreds));
-              oReq.send();
-          }
-        }
+//        function reqListener () {
+//           if (this.status == 200) {
+//             equal(this.responseText.trim(), "super", "expect correct res text from server");
+//             start();    
+//           } else if (this.status == 401) {
+//               oReq = new XMLHttpRequest();
+//               oReq.onload = reqListener;
+//               oReq.open("get", "http://manichord.com/auth-test/secret", true);
+//               oReq.setRequestHeader("Authorization", "Basic "+btoa(authCreds));
+//               oReq.send();
+//           }
+//         }
         
-        oReq.onload = reqListener;
-        oReq.open("get", "http://manichord.com/auth-test/secret", true);
-        oReq.send();
-    });
+//         oReq.onload = reqListener;
+//         oReq.open("get", "http://manichord.com/auth-test/secret", true);
+//         oReq.send();
+//     });
     
     module("Git Dircache Tests");
     
@@ -84,43 +84,83 @@ define(['js/git-cmds', 'utils/file_utils', 'formats/dircache'], function(git, fi
        equal(eSize1, entry1.size, "expect correct size"); 
     });
     
-    asyncTest("write index on checkout", function() {
-        var testDataBlobSha = ["8e532033f25d949ae9b2ca4d882f66bd9ca40384"]; //has output of git ls-files for commit we are using here
-        var ref = "49df7f2085391a28fc37aa056f5c0064f0040482";
-        var testDataStr;
-        
-        function doCheckout() {
-            git.getCurrentRepo()._retrieveBlobsAsStrings(testDataBlobSha, function(arrOfTxts) {
-               console.log("got back blobs", arrOfTxts);
-               testDataStr = arrOfTxts[0].data;
-               git.checkoutSha(ref, function(){
-                    console.log("write index checked out "+ref);
-                    // now compare to test data
-                    git.getDircache(function(dircache) {
-                        var sortedEntries = testDataStr.split("\n");
-                        equal(dircache.entriesCount(), sortedEntries.length, "number of entries must be correct");
-                        var ourSortedEntryPaths = dircache.getSortedEntryPaths();
-                        for (var i = 0; i < ourSortedEntryPaths.length; i++) {
-                            //compare our order of entries vs how cgit did it in the test data
-                            if (ourSortedEntryPaths[i] !== sortedEntries[i]) { //do this otherwise our number of tests is huge
-                                equal(ourSortedEntryPaths[i], sortedEntries[i], "entries must be sorted in order Git specs");
-                            }
-                        }
-                        equal(ourSortedEntryPaths[ourSortedEntryPaths.length-1], sortedEntries[sortedEntries.length-1], 
-                            "entries must be sorted in order Git specs");
+//     asyncTest("test the fail", function() {
+//         setTimeout(function() {
+//             QUnit.failAsync("ff");
+//         });
+//     })
+    
+    asyncTest("working dir status - clean", function() {
+        var ref = "refs/heads/master";
+        git.reset("hard", function() {
+            git.checkoutRef(ref, function() {
+                git.getLog(10, null, function() {
+                    status.compareWorkDirToDircache(git.getOutDir(), git.getCurrentRepo(), function(modArr) {
+                        console.log("mod", modArr)
+                        equal(modArr.length, 0 , "there should be no modified files in workdir");
                         start();
-                    });
-                }, function(e) { ok(false, "ERROR Checking out "+ref+" "+JSON.stringify(e)); start(); });
-            });
-        };
-        
-        git.getLog(10, null, function() {
-            //need to first have somethign else checked to force deteached checkout of the commit in our test
-            git.checkoutRef("refs/heads/master", function() {
-                doCheckout();
-            }) 
-        });
+                    }, QUnit.failAsync);
+                });
+            });    
+        }, QUnit.failAsync);
     });
+    
+     asyncTest("working dir status - new file added", function() {
+        var filename = "test-added.txt";
+        fileUtils.mkfile(git.getOutDir(), filename, "foobar", function() {
+            git.getLog(10, null, function() {
+                status.compareWorkDirToDircache(git.getOutDir(), git.getCurrentRepo(), function(modArr) {
+                    equal(modArr.length, 1 , "there should be exactly 1 modified file in workdir");
+                    equal(modArr[0].name, filename , "its name should be correct");
+                    //cleanup
+                    fileUtils.rmFile(git.getOutDir(), filename, start);
+                }, QUnit.failAsync);
+            });
+        }, QUnit.failAsync);
+    });
+    
+    
+    
+//     asyncTest("write index on checkout", function() {
+//         var testDataBlobSha = ["8e532033f25d949ae9b2ca4d882f66bd9ca40384"]; //has output of git ls-files for commit we are using here
+//         var ref = "49df7f2085391a28fc37aa056f5c0064f0040482";
+//         var testDataStr;
+        
+//         function doCheckout() {
+//             git.getCurrentRepo()._retrieveBlobsAsStrings(testDataBlobSha, function(arrOfTxts) {
+//                console.log("got back blobs", arrOfTxts);
+//                testDataStr = arrOfTxts[0].data;
+//                git.checkoutSha(ref, function(){
+//                     console.log("write index checked out "+ref);
+//                     // now compare to test data
+//                     git.getDircache(function(dircache) {
+//                         var sortedEntries = testDataStr.split("\n");
+//                         equal(dircache.entriesCount(), sortedEntries.length, "number of entries must be correct");
+//                         var ourSortedEntryPaths = dircache.getSortedEntryPaths();
+//                         for (var i = 0; i < ourSortedEntryPaths.length; i++) {
+//                             //compare our order of entries vs how cgit did it in the test data
+//                             if (ourSortedEntryPaths[i] !== sortedEntries[i]) { //do this otherwise our number of tests is huge
+//                                 equal(ourSortedEntryPaths[i], sortedEntries[i], "entries must be sorted in order Git specs");
+//                             }
+//                         }
+//                         equal(ourSortedEntryPaths[ourSortedEntryPaths.length-1], sortedEntries[sortedEntries.length-1], 
+//                             "entries must be sorted in order Git specs");
+//                         start();
+//                     });
+//                 }, function(e) { ok(false, "ERROR Checking out "+ref+" "+JSON.stringify(e)); start(); });
+//             });
+//         };
+        
+// //         git.getLog(10, null, function() {
+// //             //need to first have somethign else checked to force detached checkout of the commit in our test
+// //             var ref = "refs/heads/master";
+// //             git.checkoutRef(ref, function() {
+//                 doCheckout();
+// //             }, function(e) {ok(false, "ERROR Checking out "+ref+" "+JSON.stringify(e)); start(); }) 
+// //         });
+//     });
+
+   
 });
 
 

@@ -2,6 +2,11 @@
 
 QUnit.config.autostart = false;
 
+QUnit.failAsync = function(e) {
+    QUnit.push(false, e, null, "Unexpected error"+e);
+    start();
+};
+
 requirejs.config({
      paths: {
          'objectstore' : "/git-html5/objectstore",
