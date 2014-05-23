@@ -1,7 +1,7 @@
 define(['require', 'objectstore/file_repo', 'commands/diff', 'commands/clone', 'commands/lsremote', 
         'commands/checkout', 'commands/branch', 'formats/dircache'], 
     function(require, FileObjectStore, diff, clone, lsremote, 
-            checkout, branch, Dircache) {
+            checkout, branch, dircache) {
 
     var outDir;
     var FS;
@@ -264,7 +264,7 @@ define(['require', 'objectstore/file_repo', 'commands/diff', 'commands/clone', '
     
     function getDircache(callback, errorCB) {
         currentRepo.getDircache(function(buf) {
-            callback(new Dircache(buf));
+            callback(dircache(buf));
         }, errorCB);
     }
     

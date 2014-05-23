@@ -1,4 +1,4 @@
-define(['js/git-cmds', 'utils/file_utils', 'formats/dircache', 'commands/status'], function(git, fileUtils, DirCache, status) {
+define(['js/git-cmds', 'utils/file_utils', 'formats/dircache', 'commands/status'], function(git, fileUtils, dircache, status) {
    module("Core Tests");
     
     test("require.js needed", function() {
@@ -63,7 +63,7 @@ define(['js/git-cmds', 'utils/file_utils', 'formats/dircache', 'commands/status'
     });
         
     test("create index binary", function() {
-       var dc = new DirCache();
+       var dc = dircache();
        var path1 = "foo/bar1";
        var emptySha = "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391";
        var eDate1 = new Date();
@@ -75,7 +75,7 @@ define(['js/git-cmds', 'utils/file_utils', 'formats/dircache', 'commands/status'
        ok(bin instanceof ArrayBuffer)
        equal(bin.byteLength, 104, "entry must be correct size");
 
-       var dc2 = new DirCache(bin);
+       var dc2 = dircache(bin);
        equal(dc2.entriesCount(), 1, "expect 1 entry");
        var entry1 =  dc2.getEntry(path1);
        equal(typeof entry1, "object", "expect 1 entry object");
