@@ -275,8 +275,9 @@ define(['require', 'objectstore/file_repo', 'commands/diff', 'commands/clone', '
                 objectStore: currentRepo,
                 nocheck: true
             };
-            currentRepo.getHeadSha(function(headSha) {
-                checkoutOptions.sha = headSha;
+            currentRepo.getHeadRef(function(headRef) {
+                checkoutOptions.ref = headRef;
+                console.log("reset to ref:"+headRef)
                 checkout(checkoutOptions, callback, errorCB);    
             });
         }
