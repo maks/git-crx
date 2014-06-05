@@ -84,12 +84,6 @@ define(['js/git-cmds', 'utils/file_utils', 'formats/dircache', 'commands/status'
        equal(eSize1, entry1.size, "expect correct size"); 
     });
     
-//     asyncTest("test the fail", function() {
-//         setTimeout(function() {
-//             QUnit.failAsync("ff");
-//         });
-//     })
-    
     asyncTest("working dir status - clean", function() {
         var ref = "refs/heads/master";
         git.reset("hard", function() {
@@ -137,44 +131,44 @@ define(['js/git-cmds', 'utils/file_utils', 'formats/dircache', 'commands/status'
         return false;
     }
     
-//     asyncTest("write index on checkout", function() {
-//         var testDataBlobSha = ["8e532033f25d949ae9b2ca4d882f66bd9ca40384"]; //has output of git ls-files for commit we are using here
-//         var ref = "49df7f2085391a28fc37aa056f5c0064f0040482";
-//         var testDataStr;
+    asyncTest("write index on checkout", function() {
+        var testDataBlobSha = ["8e532033f25d949ae9b2ca4d882f66bd9ca40384"]; //has output of git ls-files for commit we are using here
+        var ref = "49df7f2085391a28fc37aa056f5c0064f0040482";
+        var testDataStr;
         
-//         function doCheckout() {
-//             git.getCurrentRepo()._retrieveBlobsAsStrings(testDataBlobSha, function(arrOfTxts) {
-//                console.log("got back blobs", arrOfTxts);
-//                testDataStr = arrOfTxts[0].data;
-//                git.checkoutSha(ref, function(){
-//                     console.log("write index checked out "+ref);
-//                     // now compare to test data
-//                     git.getDircache(function(dircache) {
-//                         var sortedEntries = testDataStr.split("\n");
-//                         equal(dircache.entriesCount(), sortedEntries.length, "number of entries must be correct");
-//                         var ourSortedEntryPaths = dircache.getSortedEntryPaths();
-//                         for (var i = 0; i < ourSortedEntryPaths.length; i++) {
-//                             //compare our order of entries vs how cgit did it in the test data
-//                             if (ourSortedEntryPaths[i] !== sortedEntries[i]) { //do this otherwise our number of tests is huge
-//                                 equal(ourSortedEntryPaths[i], sortedEntries[i], "entries must be sorted in order Git specs");
-//                             }
-//                         }
-//                         equal(ourSortedEntryPaths[ourSortedEntryPaths.length-1], sortedEntries[sortedEntries.length-1], 
-//                             "entries must be sorted in order Git specs");
-//                         start();
-//                     });
-//                 }, function(e) { ok(false, "ERROR Checking out "+ref+" "+JSON.stringify(e)); start(); });
-//             });
-//         };
+        function doCheckout() {
+            git.getCurrentRepo()._retrieveBlobsAsStrings(testDataBlobSha, function(arrOfTxts) {
+               console.log("got back blobs", arrOfTxts);
+               testDataStr = arrOfTxts[0].data;
+               git.checkoutSha(ref, function(){
+                    console.log("write index checked out "+ref);
+                    // now compare to test data
+                    git.getDircache(function(dircache) {
+                        var sortedEntries = testDataStr.split("\n");
+                        equal(dircache.entriesCount(), sortedEntries.length, "number of entries must be correct");
+                        var ourSortedEntryPaths = dircache.getSortedEntryPaths();
+                        for (var i = 0; i < ourSortedEntryPaths.length; i++) {
+                            //compare our order of entries vs how cgit did it in the test data
+                            if (ourSortedEntryPaths[i] !== sortedEntries[i]) { //do this otherwise our number of tests is huge
+                                equal(ourSortedEntryPaths[i], sortedEntries[i], "entries must be sorted in order Git specs");
+                            }
+                        }
+                        equal(ourSortedEntryPaths[ourSortedEntryPaths.length-1], sortedEntries[sortedEntries.length-1], 
+                            "entries must be sorted in order Git specs");
+                        start();
+                    });
+                }, function(e) { ok(false, "ERROR Checking out "+ref+" "+JSON.stringify(e)); start(); });
+            });
+        };
         
-// //         git.getLog(10, null, function() {
-// //             //need to first have somethign else checked to force detached checkout of the commit in our test
-// //             var ref = "refs/heads/master";
-// //             git.checkoutRef(ref, function() {
-//                 doCheckout();
-// //             }, function(e) {ok(false, "ERROR Checking out "+ref+" "+JSON.stringify(e)); start(); }) 
-// //         });
-//     });
+        git.getLog(10, null, function() {
+            //need to first have somethign else checked to force detached checkout of the commit in our test
+            var ref = "refs/heads/master";
+            git.checkoutRef(ref, function() {
+                doCheckout();
+            }, function(e) {ok(false, "ERROR Checking out "+ref+" "+JSON.stringify(e)); start(); }) 
+        });
+    });
 
    
 });
