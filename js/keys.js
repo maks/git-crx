@@ -14,7 +14,7 @@ define(['./gui'], function(ui) {
         Mousetrap.bind(['mod+l'], ui.askForRemote );
         Mousetrap.bind(['mod+o'], ui.chooseFSForLocalRepo );
         Mousetrap.bind(['mod+i'], ui.showDircache );
-        Mousetrap.bind(['mod+shift+t'], function(x) { chrome.app.window.create("tests/tests.html", {}, null)} );
+        Mousetrap.bind(['mod+shift+t'], function(x) { chrome.app.window.create("tests/tests.html", { id: "gitcrx-tests" }, null)} );
         Mousetrap.bind(['q'], ui.cancelCurrentContext );
     }
     return  {

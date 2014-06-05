@@ -2,6 +2,11 @@
 
 QUnit.config.autostart = false;
 
+QUnit.failAsync = function(e) {
+    QUnit.push(false, e, null, "Unexpected error"+e);
+    start();
+};
+
 requirejs.config({
      paths: {
          'objectstore' : "/git-html5/objectstore",
@@ -16,12 +21,10 @@ requirejs.config({
      }
 });
  
-require(['./core-tests', 'js/git-cmds'], function(coreTests, git){
+require(['./core-tests', 'js/git-cmds'], function(coreTests, git) {
     //first need to get FS root for tests...
-    git.getFS(function() {
+    git.getFS(function(dirEntry) {
         QUnit.start(); //now run tests
         console.log("started tests")
     });
 });
-
-
