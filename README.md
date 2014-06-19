@@ -2,6 +2,10 @@
 
 ## A Chrome Packaged App for browsing local git repositories
 
+## Webstore
+
+The app is [available on the Chrome Web Store](https://chrome.google.com/webstore/detail/git-crx/gfbifgdpbkdembpnmdedpabdllffklpj)
+
 ## WARNING VERY ALPHA CODE !!
 
 This is very rough at the moment!
